@@ -8,13 +8,10 @@
  */
 
 
-#ifndef SVG_PATH_PARSER
-#define SVG_PATH_PARSER
+#pragma once
 
 #include <cmath>
-#include <vector>
 #include "ofMain.h"
-#include "ofxVec2f.h"
 #include "ofxSVGTypes.h"
 
 
@@ -25,7 +22,7 @@ public:
 	
 	ofxComplexSVGPath* pathInstance;
 	
-	svgPathParser(ofxComplexSVGPath* p) {
+	ofxSVGPathParser(ofxComplexSVGPath* p) {
 		pathInstance = p;
 	}
 	
@@ -64,18 +61,17 @@ private:
 	
 	
 	
-	ofxVec2f startPoint, endPoint;
+	ofVec2f startPoint, endPoint;
     double m_rx, m_ry, m_rot_angle;
     bool m_large_arc, m_sweep;
     bool m_svg_compliant;
     double m_start_angle, m_end_angle;
-    ofxVec2f m_center;
-	vector<ofxVec2f> *path;
+    ofVec2f m_center;
+	vector<ofVec2f> *path;
 	
-    bool isDegenerate(ofxVec2f p) {
+    bool isDegenerate(ofVec2f p) {
 		
-        return ( are_near(p.x, 0.0f) || 
-					are_near(p.y, 0.0f) );
+        return ( are_near(p.x, 0.0f) ||  are_near(p.y, 0.0f) );
     }
 	
 	//bool are_near(double a, double b) { return fabs(a-b) <= 1e-5; }
@@ -83,6 +79,3 @@ private:
 
 };
 
-
-
-#endif

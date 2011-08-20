@@ -115,7 +115,25 @@ public:
 
 class ofxComplexSVGPath : public ofxSVGObject {
 	public:
-		vector<vector<ofxVec2f>*> paths;
+	
+	vector< vector<ofVec2f> > paths;
+	void newVector() {
+		vector<ofVec2f> v;
+		paths.push_back(v);
+	}
+	
+	void addPoint(ofVec2f pt) {
+		paths.back().push_back(pt);
+	}
+	
+	ofVec2f getLastPoint(ofVec2f pt) {
+		return paths.back().back();
+	}
+	
+	vector<ofVec2f> &operator [] (unsigned int i) {
+		return paths[i];
+	}
+	
 };
 
 class ofxSVGImage : public ofxSVGObject {

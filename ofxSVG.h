@@ -1,12 +1,9 @@
-#ifndef OFX_SVG
-#define OFX_SVG
 
-//#define USE_OFXFTGL
+#pragma mark once
 
 #include "ofMain.h"
 #include "ofxDisplayList.h"
-//#include "ofxFTGLFont.h"
-#include "svgPathParser.h"
+#include "ofXSVGPathParser.h"
 
 #include "ofxSVGXml.h"
 #include "ofxSVGTypes.h"
@@ -143,6 +140,3 @@ class ofxSVG{
         //----------------------------------
         bool                    bVerbose;
 };
-
-#endif
-

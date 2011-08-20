@@ -1,8 +1,8 @@
-#include "svgPathParser.h"
+#include "ofxSVGPathParser.h"
 
 static int currentToken;
 
-void svgPathParser::parse(const char** attr)
+void ofxSVGPathParser::parse(const char** attr)
 {
 	nbuf = 0;
 	const char* s;
@@ -112,13 +112,13 @@ void svgPathParser::parse(const char** attr)
 }
 
 
-void svgPathParser::cubicBez(float x1, float y1, float cx1, float cy1, float cx2, float cy2, float x2, float y2)
+void ofxSVGPathParser::cubicBez(float x1, float y1, float cx1, float cy1, float cx2, float cy2, float x2, float y2)
 {
 	cubicBezRec(x1,y1, cx1,cy1, cx2,cy2, x2,y2, 0); 
 	svgPathPoint(x2, y2);
 }
 
-void svgPathParser::quadBezRec( float x1, float y1, float x2, float y2, float x3, float y3, int level)
+void ofxSVGPathParser::quadBezRec( float x1, float y1, float x2, float y2, float x3, float y3, int level)
 {
 	float x12,y12,x23,y23,x123,y123,d;
 	
@@ -142,14 +142,14 @@ void svgPathParser::quadBezRec( float x1, float y1, float x2, float y2, float x3
 	quadBezRec(x123,y123, x23,y23, x3,y3, level+1); 
 }
 
-void svgPathParser::quadBez(float x1, float y1, float cx, float cy, float x2, float y2)
+void ofxSVGPathParser::quadBez(float x1, float y1, float cx, float cy, float x2, float y2)
 {
 	quadBezRec(x1,y1, cx,cy, x2,y2, 0); 
 	svgPathPoint(x2, y2);
 }
 
 
-void svgPathParser::pathCubicBezTo(float* cpx, float* cpy, float* cpx2, float* cpy2, float* args, int rel)
+void ofxSVGPathParser::pathCubicBezTo(float* cpx, float* cpy, float* cpx2, float* cpy2, float* args, int rel)
 {
 	
 	float x1, y1, x2, y2, cx1, cy1, cx2, cy2;
@@ -183,7 +183,7 @@ void svgPathParser::pathCubicBezTo(float* cpx, float* cpy, float* cpx2, float* c
 	*cpy = y2;
 }
 
-void svgPathParser::pathCubicBezShortTo(float* cpx, float* cpy,	float* cpx2, float* cpy2, float* args, int rel)
+void ofxSVGPathParser::pathCubicBezShortTo(float* cpx, float* cpy,	float* cpx2, float* cpy2, float* args, int rel)
 {
 	float x1, y1, x2, y2, cx1, cy1, cx2, cy2;
 	
@@ -215,7 +215,7 @@ void svgPathParser::pathCubicBezShortTo(float* cpx, float* cpy,	float* cpx2, flo
 	*cpy = y2;
 }
 
-void svgPathParser::pathQuadBezTo(float* cpx, float* cpy, float* cpx2, float* cpy2, float* args, int rel)
+void ofxSVGPathParser::pathQuadBezTo(float* cpx, float* cpy, float* cpx2, float* cpy2, float* args, int rel)
 {
 	float x1, y1, x2, y2, cx, cy;
 	
@@ -244,7 +244,7 @@ void svgPathParser::pathQuadBezTo(float* cpx, float* cpy, float* cpx2, float* cp
 	*cpy = y2;
 }
 
-void svgPathParser:: svgPathParser::pathQuadBezShortTo(float* cpx, float* cpy, float* cpx2, float* cpy2, float* args, int rel)
+void ofxSVGPathParser:: ofxSVGPathParser::pathQuadBezShortTo(float* cpx, float* cpy, float* cpx2, float* cpy2, float* args, int rel)
 {
 	float x1, y1, x2, y2, cx, cy;
 	
@@ -272,7 +272,7 @@ void svgPathParser:: svgPathParser::pathQuadBezShortTo(float* cpx, float* cpy, f
 	*cpy = y2;
 }
 
-void svgPathParser::cubicBezRec(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, int level)
+void ofxSVGPathParser::cubicBezRec(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, int level)
 {
 	float x12,y12,x23,y23,x34,y34,x123,y123,x234,y234,x1234,y1234;
 	float d;
@@ -303,7 +303,7 @@ void svgPathParser::cubicBezRec(float x1, float y1, float x2, float y2, float x3
 	cubicBezRec(x1234,y1234, x234,y234, x34,y34, x4,y4, level+1); 
 }
 
-void svgPathParser::pathLineTo(float* cpx, float* cpy, float* args, int rel)
+void ofxSVGPathParser::pathLineTo(float* cpx, float* cpy, float* args, int rel)
 {
 	if (rel)
 	{
@@ -318,7 +318,7 @@ void svgPathParser::pathLineTo(float* cpx, float* cpy, float* args, int rel)
 	svgPathPoint(*cpx, *cpy);
 }
 
-void svgPathParser::pathHLineTo(float* cpx, float* cpy, float* args, int rel)
+void ofxSVGPathParser::pathHLineTo(float* cpx, float* cpy, float* args, int rel)
 {
 	if (rel)
 		*cpx += args[0];
@@ -327,7 +327,7 @@ void svgPathParser::pathHLineTo(float* cpx, float* cpy, float* args, int rel)
 	svgPathPoint(*cpx, *cpy);
 }
 
-void svgPathParser::pathVLineTo(float* cpx, float* cpy, float* args, int rel)
+void ofxSVGPathParser::pathVLineTo(float* cpx, float* cpy, float* args, int rel)
 {
 	if (rel)
 		*cpy += args[0];
@@ -336,7 +336,7 @@ void svgPathParser::pathVLineTo(float* cpx, float* cpy, float* args, int rel)
 	svgPathPoint(*cpx, *cpy);
 }
 
-float svgPathParser::distPtSeg(float x, float y, float px, float py, float qx, float qy)
+float ofxSVGPathParser::distPtSeg(float x, float y, float px, float py, float qx, float qy)
 {
 	float pqx, pqy, dx, dy, d, t;
 	pqx = qx-px;
@@ -353,7 +353,7 @@ float svgPathParser::distPtSeg(float x, float y, float px, float py, float qx, f
 	return dx*dx + dy*dy;
 }
 
-int svgPathParser::getArgsPerElement(char cmd)
+int ofxSVGPathParser::getArgsPerElement(char cmd)
 {
 	switch (tolower(cmd))
 	{
@@ -375,7 +375,7 @@ int svgPathParser::getArgsPerElement(char cmd)
 	return 0;
 }
 
-const char* svgPathParser::getNextPathItem(const char* s, char* it)
+const char* ofxSVGPathParser::getNextPathItem(const char* s, char* it)
 {
 	int i = 0;
 	it[0] = '\0';
@@ -406,31 +406,22 @@ const char* svgPathParser::getNextPathItem(const char* s, char* it)
 }
 
 
-void svgPathParser::svgPathPoint(float x, float y) {
+void ofxSVGPathParser::svgPathPoint(float x, float y) {
 	printf(" new point %f %f length %i \n", x, y, path->size());
 	ofxVec2f v(x, y);
 	path->push_back(v);
 }
 
-int svgPathParser::isnum(char c)
+int ofxSVGPathParser::isnum(char c)
 {
 	return strchr("0123456789+-.eE", c) != 0;
 }
 
-void svgPathParser::svgResetPath() 
+void ofxSVGPathParser::svgResetPath() 
 {
-	// here's where your problem is.
-	
-	vector<ofxVec2f> *newv = new vector<ofxVec2f>();
-	newv = path;
-	int i, j;
-	/*for (i = 0; i<newv->size(); i++) {
-		printf(" %f %f ", newv->at(i).x, newv->at(i).y);
-	}*/
-	
-	pathInstance->paths.push_back(newv);
-	printf(" last added path size %i \n", pathInstance->paths.at(pathInstance->paths.size()-1)->size());
-	path = new vector<ofxVec2f>();
+	path 
+	cout << " last added path size " << pathInstance->paths.at(pathInstance->paths.size()-1)->size())<< endl;
+	path = new vector<ofVec2f>();
 	/*
 	for (i = 0; i<pathInstance->paths.size(); i++) {
 		for (j = 0; j<pathInstance->paths.at(i)->size(); j++) {

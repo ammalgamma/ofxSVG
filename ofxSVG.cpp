@@ -1,5 +1,4 @@
 #include "ofxSVG.h"
-#include <fstream>
 
 //--------------------------------------------------------------
 void ofxSVG::load(string svgPath){
@@ -183,7 +182,7 @@ void ofxSVG::parseImage() {
 	ofImage tmpimg;
 	tmpimg.loadImage(path);
 	//width="144" height="144"
-	ofxSVGImage *img = new ofxSVGImage;
+	ofxSVGImage *img = new ofxSVGImage();
 	img->tex = new ofTexture;
 	img->tex->allocate(tmpimg.width, tmpimg.height, GL_RGB);
 	img->tex->loadData(tmpimg.getPixels(), tmpimg.width, tmpimg.height, GL_RGB);
@@ -625,11 +624,7 @@ void ofxSVG::parseText(){
             // Check if Font is already loaded
             //------------------------------------
             if(fonts.count(fontName+ofToString(fontSize)) == 0){
-                #ifdef USE_OFXFTGL
-                    ofxFTGLFont* font = new ofxFTGLFont();
-                #else
                     ofTrueTypeFont* font = new ofTrueTypeFont();
-                #endif
 
                 // Find Font Extension
                 // and check if file exist
@@ -644,13 +639,7 @@ void ofxSVG::parseText(){
 
                 // Load font and add to font map
                 //--------------------------------
-                #ifdef USE_OFXFTGL
-					//font->loadFont("fonts/"+fontName+fontExt, fontSize);
-					fonts[fontName+ofToString(fontSize)].loadFont("fonts/"+fontName+fontExt, fontSize);
-
-                #else
 					fonts[fontName+ofToString(fontSize)].loadFont("fonts/"+fontName+fontExt, fontSize*0.75f, true, true, true);
-				#endif
 
                 //fonts.insert(make_pair(fontName+ofToString(fontSize), font));
             }
@@ -740,12 +729,6 @@ void ofxSVG::parseText(){
         //if(fonts.count(fontName+ofToString(fontSize)) == 0){
 
 		if(fonts.find(fontName+ofToString(fontSize)) == fonts.end()){
-			#ifdef USE_OFXFTGL
-			// ofxFTGLFont* font = new ofxFTGLFont();
-            #else
-			//   ofTrueTypeFont* font = new ofTrueTypeFont();
-            #endif
-
             // Find Font Extension
             // and check if file exist
             //--------------------------------
@@ -759,13 +742,7 @@ void ofxSVG::parseText(){
 
             // Load font and add to font map
             //--------------------------------
-            #ifdef USE_OFXFTGL
-                fonts[fontName+ofToString(fontSize)].loadFont("fonts/"+fontName+fontExt, fontSize);
-            #else
                 fonts[fontName+ofToString(fontSize)].loadFont("fonts/"+fontName+fontExt, fontSize*0.75f, true, true, true);
-            #endif
-
-			//            fonts.insert(make_pair(fontName+ofToString(fontSize), font));
         }
 
         ofxSVGText* obj = new ofxSVGText;
@@ -898,6 +875,10 @@ void ofxSVG::parsePath(){
 			drawVectorData(obj);
 			
 			if(strokeWeight!="") ofSetLineWidth(1);
+		} else {
+			
+			ofSetLineWidth(strokeWeight);
+			
 		}
 
 
@@ -906,12 +887,16 @@ void ofxSVG::parsePath(){
 		layers[layers.size()-1].objects.push_back(obj);
 }
 
+/*
+ * JN - This is still experimental and not quite ready for primetime, however, feel free to play with it
+ */
+
 void ofxSVG::parsePathExperimental() {
 	string pathStr = svgXml.getAttribute("d", currentIteration);
 	
 	ofxComplexSVGPath* obj = new ofxComplexSVGPath();
 	
-	svgPathParser parser(obj);
+	ofxSVGPathParser parser(obj);
 	
 	const char* c = pathStr.c_str();
 	

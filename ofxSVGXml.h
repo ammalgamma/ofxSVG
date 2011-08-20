@@ -1,6 +1,5 @@
-#ifndef OFX_SVGXML
-#define OFX_SVGXML
 
+#pragma mark once
 #include "ofxXmlSettings.h"
 
 
@@ -26,5 +25,3 @@ public:
 
 };
 
-
-#endif
