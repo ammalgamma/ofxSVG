@@ -20,9 +20,9 @@ public:
 	
 	int nbuf, level, npos;
 	
-	ofxComplexSVGPath* pathInstance;
+	ofPath* pathInstance;
 	
-	ofxSVGPathParser(ofxComplexSVGPath* p) {
+	ofxSVGPathParser(ofPath* p) {
 		pathInstance = p;
 	}
 	
@@ -49,17 +49,15 @@ public:
 	void pathVLineTo(float* cpx, float* cpy, float* args, int rel);
 	
 	void quadBez(float x1, float y1, float cx, float cy, float x2, float y2);
-	void svgPathPoint(float x, float y);
+	//void svgPathPoint(float x, float y);
 	int getArgsPerElement(char cmd);
 	const char* getNextPathItem(const char* s, char* it);
 	int isnum(char c);
-	void svgResetPath();
 	
 private:
+	
 	bool _absolute;
 	bool _in_path;
-	
-	
 	
 	ofVec2f startPoint, endPoint;
     double m_rx, m_ry, m_rot_angle;
@@ -67,7 +65,6 @@ private:
     bool m_svg_compliant;
     double m_start_angle, m_end_angle;
     ofVec2f m_center;
-	vector<ofVec2f> *path;
 	
     bool isDegenerate(ofVec2f p) {
 		

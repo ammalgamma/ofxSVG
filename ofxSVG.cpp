@@ -133,6 +133,49 @@ void ofxSVG::load(string svgPath){
 	ofDisableSmoothing();
 }
 
+
+ofxSVG::ofxSVG( ofFbo &fbo ) 
+{ 
+	fboForDrawing = fbo;
+	drawingMode = DRAW_FBO;
+}
+
+ofxSVG::ofxSVG( ofFbo *fbo ) {
+	fboForDrawing = *fbo;
+	drawingMode = DRAW_FBO;
+}
+
+ofxSVG::ofxSVG( ofTexture &tex ) 
+{ 
+	texForDrawing = tex;
+	drawingMode = DRAW_TEXTURE;
+}
+
+ofxSVG::ofxSVG( ofTexture *tex ) {
+	texForDrawing = *tex;
+	drawingMode = DRAW_TEXTURE;
+}
+
+ofxSVG::ofxSVG( ofVbo &vbo ) 
+{ 
+	vboForDrawing = vbo;
+	drawingMode = DRAW_VBO;
+}
+
+ofxSVG::ofxSVG( ofVbo *vbo ) {
+	vboForDrawing = *vbo;
+	drawingMode = DRAW_VBO;
+}
+
+ofxSVG::ofxSVG( ) {
+	drawingMode = DRAW_VERTEX_ARRAY;
+}
+
+ofxSVG::~ofxSVG() {
+	
+	// lotta cleanup to do here
+}
+
 // Parsing
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
@@ -159,8 +202,8 @@ void ofxSVG::parseLayer(){
         else if(name == "line") parseLine();
         else if(name == "polygon") parsePolygon();
         else if(name == "text") parseText();
-        else if(name == "path")parsePath();
-		//else if(name == "path")parsePathExperimental(); // not using this yet JN
+        //else if(name == "path")parsePath();
+		else if(name == "path")parsePathExperimental(); // not using this yet JN
 		else if(name == "image")parseImage();
         else if(name == "g"){
             svgXml.pushTag(i);
@@ -169,6 +212,17 @@ void ofxSVG::parseLayer(){
         }
     }
 
+}
+
+GLint ofxSVG::getImageColorType(ofImage &image) {
+	GLint imgType;
+	int channum = image.getPixelsRef().getNumChannels();
+	if(channum == 3) {
+		return GL_RGB;
+	} else if( channum == 4 ) {
+		return GL_RGBA;
+	}
+	return GL_LUMINANCE;
 }
 
 void ofxSVG::parseImage() {
@@ -181,19 +235,14 @@ void ofxSVG::parseImage() {
 	y = atoi(svgXml.getAttribute("y", currentIteration).c_str());
 	ofImage tmpimg;
 	tmpimg.loadImage(path);
-	//width="144" height="144"
+
 	ofxSVGImage *img = new ofxSVGImage();
 	img->tex = new ofTexture;
-	img->tex->allocate(tmpimg.width, tmpimg.height, GL_RGB);
-	img->tex->loadData(tmpimg.getPixels(), tmpimg.width, tmpimg.height, GL_RGB);
 	
-	img->dl.begin();
-	
-	img->renderMode  = ofxSVGRender_DisplayList;
+	img->tex->allocate(tmpimg.width, tmpimg.height, getImageColorType(tmpimg));
+	img->tex->loadData(tmpimg.getPixels(), tmpimg.width, tmpimg.height, getImageColorType(tmpimg));
 	
 	img->tex->draw(x, y, imgWidth, imgHeight);
-	
-	img->dl.end();
 	
 	layers[layers.size()-1].objects.push_back(img);
 }
@@ -223,8 +272,6 @@ void ofxSVG::parseRect(){
 
         // Shape info
         //--------------------------------
-        obj->type        = ofxSVGObject_Rectangle;
-        obj->renderMode  = ofxSVGRender_DisplayList;
         obj->name        = id;
         obj->x           = x;
         obj->y           = y;
@@ -233,9 +280,8 @@ void ofxSVG::parseRect(){
 
         // Display List
         //--------------------------------
-        obj->dl.begin();
-
-        glPushMatrix();
+		
+        ofPushMatrix();
 
         if(transform!=""){
             float rot = rotFromMatrix(transform);
@@ -274,8 +320,6 @@ void ofxSVG::parseRect(){
 
         glPopMatrix();
 
-        obj->dl.end();
-
         // Vertexs
         //--------------------------------
         obj->vertexs.push_back(ofPoint(x, y));
@@ -310,7 +354,6 @@ void ofxSVG::parseCircle(){
     //--------------------------------
 
     obj->type        = ofxSVGObject_Circle;
-    obj->renderMode  = ofxSVGRender_DisplayList;
     obj->name        = id;
     obj->x           = x;
     obj->x           = y;
@@ -318,7 +361,7 @@ void ofxSVG::parseCircle(){
 
     // Display List
     //--------------------------------
-    obj->dl.begin();
+    beginRenderer();
 
     if(fill!="none"){
         ofFill();
@@ -357,7 +400,7 @@ void ofxSVG::parseCircle(){
 		ofDisableAlphaBlending();
     }
 
-    obj->dl.end();
+    endRenderer();
 
     // Vertexs
     //--------------------------------
@@ -396,7 +439,7 @@ void ofxSVG::parseEllipse(){
     //--------------------------------
 
     obj->type        = ofxSVGObject_Ellipse;
-    obj->renderMode  = ofxSVGRender_DisplayList;
+
     obj->name        = id;
     obj->x           = x;
     obj->y           = x;
@@ -405,7 +448,7 @@ void ofxSVG::parseEllipse(){
 
     // Display List
     //--------------------------------
-    obj->dl.begin();
+    beginRenderer();
 
 
     if(fill!="" && fill!="none"){
@@ -441,7 +484,7 @@ void ofxSVG::parseEllipse(){
 		ofDisableAlphaBlending();
     }
 
-    obj->dl.end();
+    endRenderer();
 
     // Vertexs
     //--------------------------------
@@ -478,7 +521,7 @@ void ofxSVG::parseLine(){
     //--------------------------------
 
     obj->type        = ofxSVGObject_Line;
-    obj->renderMode  = ofxSVGRender_DisplayList;
+
     obj->name        = id;
     obj->x1          = x1;
     obj->y1          = y1;
@@ -487,7 +530,7 @@ void ofxSVG::parseLine(){
 
     // Display List
     //--------------------------------
-    obj->dl.begin();
+    beginRenderer();
 
     if(stroke!="" && stroke!="none"){
         string strokeWeight = svgXml.getAttribute("stroke-width", currentIteration);
@@ -506,7 +549,7 @@ void ofxSVG::parseLine(){
 		ofDisableAlphaBlending();
     }
 
-    obj->dl.end();
+    endRenderer();
 
     // Vertexs
     //--------------------------------
@@ -533,19 +576,17 @@ void ofxSVG::parsePolygon(){
     //--------------------------------
 
     obj->type        = ofxSVGObject_Polygon;
-    obj->renderMode  = ofxSVGRender_DisplayList;
     obj->name        = id;
 
     // Vertexs
     //--------------------------------
     for(int i=0; i<pointsStrings.size()-1; i++){
         vector<string> pointString = ofSplitString(pointsStrings[i], ",");
-        obj->vertexs.push_back(ofPoint(strtod(pointString[0].c_str(), NULL), strtod(pointString[1].c_str(), NULL)));
+        obj->vertexs.push_back(ofVec2f(strtod(pointString[0].c_str(), NULL), strtod(pointString[1].c_str(), NULL)));
     }
 
-    // Display List
-    //--------------------------------
-    obj->dl.begin();
+	
+    beginRenderer();
 
     if(fill!="none"){
         ofFill();
@@ -586,7 +627,7 @@ void ofxSVG::parsePolygon(){
 		ofDisableAlphaBlending();
     }
 
-    obj->dl.end();
+    endRenderer();
 
     layers[layers.size()-1].objects.push_back(obj);
 }
@@ -650,12 +691,12 @@ void ofxSVG::parseText(){
         // Shape info
         //--------------------------------
         obj->type        = ofxSVGObject_Text;
-        obj->renderMode  = ofxSVGRender_DisplayList;
+    
         obj->name        = svgXml.getAttribute("id", currentIteration);
 
         // Display List
         //--------------------------------
-        obj->dl.begin();
+		
         for(int j=0; j<numTSpans; j++){
 
             // Parse Current Text Metadata
@@ -695,7 +736,7 @@ void ofxSVG::parseText(){
             fonts[fontName+ofToString(fontSize)].drawString(text, x, y);
 			ofDisableAlphaBlending();
         }
-        obj->dl.end();
+        endRenderer();
 
         layers[layers.size()-1].objects.push_back(obj);
 
@@ -751,13 +792,13 @@ void ofxSVG::parseText(){
         //--------------------------------
 
         obj->type        = ofxSVGObject_Text;
-        obj->renderMode  = ofxSVGRender_DisplayList;
+    
         obj->name        = svgXml.getAttribute("id", currentIteration);
 
         // Display List
         //--------------------------------
 
-        obj->dl.begin();
+        beginRenderer();
 
         // Draw font
         //------------------------------------
@@ -772,7 +813,7 @@ void ofxSVG::parseText(){
 
         fonts[fontName+ofToString(fontSize)].drawString(text, pos.x, pos.y);
 
-        obj->dl.end();
+        endRenderer();
 
         layers[layers.size()-1].objects.push_back(obj);
     }
@@ -829,22 +870,23 @@ void ofxSVG::parsePath(){
 		//--------------------------------
 		
 		obj->type        = ofxSVGObject_Path;
-		obj->renderMode  = ofxSVGRender_DisplayList;
 		obj->name        = svgXml.getAttribute("id", currentIteration);
 		
 		
 		// Path to Vector Data
 		//--------------------------------
-		pathToVectorData(sepPath, obj);
+		//pathToVectorData(sepPath, obj);
 		
 		// Vector Data to vertexs
 		//--------------------------------
-		vectorDataToVertexs(obj, 0.1f);
+		//vectorDataToVertexs(obj, 0.1f);
+	
+		ofxSVGPathParser parse(&obj->path);
 		
 		// Display List
 		//--------------------------------
 		
-		obj->dl.begin();
+		beginRenderer();
 		
 		if(fill!="none"){
 			ofFill();
@@ -859,7 +901,8 @@ void ofxSVG::parsePath(){
 			}
 			else ofSetColor(0,0,0,alpha);
 			
-			drawVectorData(obj);
+			//drawVectorData(obj);
+			obj->path.draw(0, 0);
 		}
 		
 		if(stroke!="" && stroke!="none"){
@@ -872,56 +915,94 @@ void ofxSVG::parsePath(){
 			float b = (rgb) & 0xFF;
 			ofSetColor(r,g,b,alpha);
 			
-			drawVectorData(obj);
+			//drawVectorData(obj);
+			obj->path.draw(0, 0);
 			
 			if(strokeWeight!="") ofSetLineWidth(1);
 		} else {
 			
-			ofSetLineWidth(strokeWeight);
+			ofSetLineWidth(1);
 			
 		}
 
 
-		obj->dl.end();
+		endRenderer();
 	
 		layers[layers.size()-1].objects.push_back(obj);
 }
 
+void ofxSVG::beginRenderer() 
+{
+	if( drawingMode == DRAW_FBO ) {
+		fboForDrawing.begin();
+	}
+	
+	if( drawingMode == DRAW_TEXTURE ) {
+		texForDrawing.bind();
+	}
+}
 
+void ofxSVG::endRenderer()
+{
+	if( drawingMode == DRAW_FBO ) {
+		fboForDrawing.end();
+	}
+	
+	if( drawingMode == DRAW_TEXTURE ) {
+		texForDrawing.unbind();
+	}
+}
 
 bool ofxSVG::isInsidePolygon(ofxSVGPath *path, ofPoint p)
 {
-		/* Based on code from:
-			 http://local.wasp.uwa.edu.au/~pbourke/geometry/insidepoly/
-			 adapted to work with openframeworks/ofxSVG by Noto Yota multimedialab, 2010
-			 */
-		int counter = 0;
-		int i,N;
-		double xinters;
+	/* Based on code from:
+		 http://local.wasp.uwa.edu.au/~pbourke/geometry/insidepoly/
+		 adapted to work with openframeworks/ofxSVG by Noto Yota multimedialab, 2010
+		 */
+	int counter = 0;
+	int i,N;
+	double xinters;
+	
+	vector<ofVec2f> points;
+	
+	vector<ofSubPath>::iterator it = path->path.getSubPaths().begin();
+	vector<ofSubPath::Command>::iterator c;
+	while (it != path->path.getSubPaths().end()) {
 		
-		ofPoint p1,p2;
+		c = it->getCommands().begin();
 		
-		p1 = path->vectorData[0].p;
-		N = path->vectorData.size();
+		while( c != it->getCommands().end() ) {
+			points.push_back(c->to);
+			++c;
+		}
 		
-		for (i=1;i<=N;i++) {
-			p2 = path->vectorData[i % N].p;
-			if (p.y > MIN(p1.y,p2.y)) {
-				if (p.y <= MAX(p1.y,p2.y)) {
-					if (p.x <= MAX(p1.x,p2.x)) {
-						if (p1.y != p2.y) {
-							xinters = (p.y-p1.y)*(p2.x-p1.x)/(p2.y-p1.y)+p1.x;
-							if (p1.x == p2.x || p.x <= xinters)
-								counter++;
-							}
+		++it;
+	}
+
+
+	ofVec2f p1,p2;
+
+	p1 = points[0];
+	N = points.size();
+	
+	for (i=1;i<=N;i++) {
+		p2 = points[i % N];
+		if (p.y > MIN(p1.y,p2.y)) {
+			if (p.y <= MAX(p1.y,p2.y)) {
+				if (p.x <= MAX(p1.x,p2.x)) {
+					if (p1.y != p2.y) {
+						xinters = (p.y-p1.y)*(p2.x-p1.x)/(p2.y-p1.y)+p1.x;
+						if (p1.x == p2.x || p.x <= xinters)
+							counter++;
 						}
 					}
 				}
-			p1 = p2;
 			}
-		
-		if (counter % 2 == 0)
-			return(false);
+		p1 = p2;
+		}
+	
+	if (counter % 2 == 0)
+		return(false);
 	else
 	return(true);
 }
@@ -934,9 +1015,11 @@ bool ofxSVG::isInsidePolygon(ofxSVGPath *path, ofPoint p)
 void ofxSVG::parsePathExperimental() {
 	string pathStr = svgXml.getAttribute("d", currentIteration);
 	
-	ofxComplexSVGPath* obj = new ofxComplexSVGPath();
+	ofxSVGPath* obj = new ofxSVGPath();
+	obj->type        = ofxSVGObject_Path;
+	obj->name        = svgXml.getAttribute("id", currentIteration);
 	
-	ofxSVGPathParser parser(obj);
+	ofxSVGPathParser parser(&obj->path);
 	
 	const char* c = pathStr.c_str();
 	
@@ -950,14 +1033,14 @@ void ofxSVG::parsePathExperimental() {
 	// Shape info
 	//--------------------------------
 	
-	//obj->type        = ofxComplexSVGPath;
-	obj->renderMode  = ofxSVGRender_DisplayList;
-	obj->name        = svgXml.getAttribute("id", currentIteration);
+	//obj->type        = ofxSVGPath;
+	//obj->name        = svgXml.getAttribute("id", currentIteration);
+	
 	
 	// Display List
 	//--------------------------------
 	
-	obj->dl.begin();
+	beginRenderer();
 	
 	if(fill!="none"){
 		ofFill();
@@ -972,7 +1055,8 @@ void ofxSVG::parsePathExperimental() {
 		}
 		else ofSetColor(0,0,0,alpha);
 		
-		drawVectorDataExperimental(obj);
+		// this can just be path.draw();
+		obj->path.draw(0, 0); //drawVectorDataExperimental(obj);
 	}
 	
 	if(stroke!="" && stroke!="none"){
@@ -985,36 +1069,38 @@ void ofxSVG::parsePathExperimental() {
 		float b = (rgb) & 0xFF;
 		ofSetColor(r,g,b,alpha);
 		
-		drawVectorDataExperimental(obj);
+		// this can just be path.draw();
+		//drawVectorDataExperimental(obj);
+		obj->path.draw(0, 0); //drawVectorDataExperimental(obj);
 		
 		if(strokeWeight!="") ofSetLineWidth(1);
 	}
 	
 	
-	obj->dl.end();
+	endRenderer();
 	
 	layers[layers.size()-1].objects.push_back(obj);
 	
 }
 
-void ofxSVG::drawVectorDataExperimental(ofxComplexSVGPath* object) {
+void ofxSVG::drawVectorDataExperimental(ofPath* object) {
 	
-	for(int k = 0; k < object->paths.size(); k++){
-		vector<ofxVec2f> *vec = object->paths.at(k);
+	/*for(int k = 0; k < object->paths.size(); k++){
+		vector<ofVec2f> *vec = object->paths.at(k);
 		printf(" size %i ", vec->size());
 		if(vec->size() < 1000) {
 		ofBeginShape();
 			for(int l = 0; l < vec->size(); l++) {
-					ofxVec2f pt = vec->at(l);
+					ofVec2f pt = vec->at(l);
 					ofVertex(pt.x, pt.y);
 			}
 		ofEndShape(false);
 		}
-	}
+	}*/
 	
 }
 
-vector<ofPoint> ofxSVG::singleBezierToPtsWithResample(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3, float resampleDist){
+/*vector<ofPoint> ofxSVG::singleBezierToPtsWithResample(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3, float resampleDist){
 	float   ax, bx, cx;
 	float   ay, by, cy;
 	float   t, t2, t3;
@@ -1221,7 +1307,7 @@ void ofxSVG::pathToVectorData(string pathStr, ofxSVGPath* obj){
 void ofxSVG::vectorDataToVertexs(ofxSVGPath* path, float resampleDist){	
 	int numPts = path->vectorData.size();
 	
-	ofxVec2f delta;
+	ofVec2f delta;
 	
 	vector <ofxSVGPoint> pts = path->vectorData;
 	
@@ -1274,6 +1360,7 @@ void ofxSVG::vectorDataToVertexs(ofxSVGPath* path, float resampleDist){
 			
 		}	
 }
+*/
 
 //-------------------------------------------------------------------------------------
 ///// ---------------------------------------------------------------------------
@@ -1290,7 +1377,7 @@ void ofxSVG::vectorDataToVertexs(ofxSVGPath* path, float resampleDist){
 ofPoint ofxSVG::posFromMatrix(string matrix){
     matrix = matrix.substr(7, matrix.length()-8);
     vector<string> matrixStrings = ofSplitString(matrix, " ");
-    return ofPoint(ofToFloat(matrixStrings[4]), ofToFloat(matrixStrings[5]));
+    return ofVec2f(ofToFloat(matrixStrings[4]), ofToFloat(matrixStrings[5]));
 }
 
 
@@ -1304,10 +1391,10 @@ float ofxSVG::rotFromMatrix(string matrix){
     return 0.0f;
 }
 
-ofxVec2f ofxSVG::scaleFromMatrix(string matrix) {
+ofVec2f ofxSVG::scaleFromMatrix(string matrix) {
 	matrix = matrix.substr(7, matrix.length()-8);
     vector<string> matrixStrings = ofSplitString(matrix, " ");
-    return ofxVec2f(ofToFloat(matrixStrings[1]), ofToFloat(matrixStrings[3]));	
+    return ofVec2f(ofToFloat(matrixStrings[1]), ofToFloat(matrixStrings[3]));	
 }
 
 float ofxSVG::scale(string scaleVal) {
@@ -1533,7 +1620,7 @@ void ofxSVG::setOpacity(float percent) {
 void ofxSVG::translate(float tx, float ty) {
 	
 	if(currentAttributes["matrix"] != "") {
-		ofxMatrix3x3 m = matrices[matrices.size() - 1];
+		ofMatrix3x3 m = matrices[matrices.size() - 1];
 		m.c += tx;
 		m.f += ty;
 		string s;
@@ -1544,7 +1631,7 @@ void ofxSVG::translate(float tx, float ty) {
 void ofxSVG::rotate(float r) {
 
 	if(currentAttributes["matrix"] != "") {
-		ofxMatrix3x3 m = matrices[matrices.size() - 1];
+		ofMatrix3x3 m = matrices[matrices.size() - 1];
 		m.a += cos(r);
 		m.b += -sin(r);
 		m.d += sin(r);
@@ -1560,7 +1647,7 @@ void ofxSVG::pushMatrix() {
 	// matrices, but that 
 	if(currentAttributes["matrix"] != "") {
 		
-		ofxMatrix3x3 m;		
+		ofMatrix3x3 m;		
 		m = matrices[matrices.size() - 1]; // build on the old one
 		matrices.push_back(m);// this just copies the matrix over but it should be fine
 	}
@@ -1594,7 +1681,7 @@ string ofxSVG::createAttribute(string element, ...) { // va_args ftw!
 	}
 }
 
-void ofxSVG::matrixFromString(string smat, ofxMatrix3x3 mat) {
+void ofxSVG::matrixFromString(string smat, ofMatrix3x3 mat) {
 	
 	size_t i, j;
 	string spaceconst = " ";
@@ -1608,7 +1695,7 @@ void ofxSVG::matrixFromString(string smat, ofxMatrix3x3 mat) {
 	}
 }
 
-void ofxSVG::stringFromMatrix(string* smat, ofxMatrix3x3 mat) {
+void ofxSVG::stringFromMatrix(string* smat, ofMatrix3x3 mat) {
 	int i = 0;
 	stringstream s;
 	s << "matrix(";

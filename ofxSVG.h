@@ -2,18 +2,33 @@
 #pragma mark once
 
 #include "ofMain.h"
-#include "ofxDisplayList.h"
 #include "ofXSVGPathParser.h"
 
 #include "ofxSVGXml.h"
 #include "ofxSVGTypes.h"
-#include "ofxVectorMath.h"
+
+
+enum SVGDrawingMode { DRAW_VERTEX_ARRAY, DRAW_FBO, DRAW_TEXTURE, DRAW_VBO };
 
 //-------------------------------------------------
 
 class ofxSVG{
 
 	public:
+	
+		ofxSVG( ofFbo &fbo );
+		ofxSVG( ofFbo *fbo );
+	
+		ofxSVG( ofVbo &vbo );
+		ofxSVG( ofVbo *vbo );
+	
+		ofxSVG( ofTexture &tex );
+		ofxSVG( ofTexture *tex );
+		ofxSVG( );
+	
+		~ofxSVG();
+	
+		void setDrawingMode( SVGDrawingMode mode );
 
         // Loading
         //----------------------------------
@@ -66,14 +81,23 @@ class ofxSVG{
 
 		string      getLayerActive(string layerName);        /*not implemented*/
 		void saveToFile(string filename);	
-		ofxVec2f scaleFromMatrix(string matrix);
+		ofVec2f scaleFromMatrix(string matrix);
 		float scale(string scaleVal);
 	
 		vector< ofxSVGLayer >   layers;
 	
 		bool isInsidePolygon(ofxSVGPath *path, ofPoint p);
 	
+	void beginRenderer();
+	void endRenderer();
+	
+	
     private:
+	
+	
+		// utilities
+	
+	GLint getImageColorType(ofImage &image);
 
         // Parsing
         //----------------------------------
@@ -92,12 +116,12 @@ class ofxSVG{
 
         // Taken from Theo ofxSVGLoader
         //----------------------------------
-        void pathToVectorData(string pathStr, ofxSVGPath* obj);
-		void vectorDataToVertexs(ofxSVGPath* path, float resampleDist);
-		vector<ofPoint> singleBezierToPtsWithResample(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3, float resampleDist);
-		void drawVectorData(ofxSVGPath* path);
+        //void pathToVectorData(string pathStr, ofxSVGPath* obj);
+		//void vectorDataToVertexs(ofxSVGPath* path, float resampleDist);
+		//vector<ofPoint> singleBezierToPtsWithResample(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3, float resampleDist);
+		//void drawVectorData(ofxSVGPath* path);
 	
-		void drawVectorDataExperimental(ofxComplexSVGPath* object);
+		void drawVectorDataExperimental(ofPath* object);
 
 
         // Matrix parsing
@@ -107,11 +131,14 @@ class ofxSVG{
 
         // Fonts map
         //--------------------------------------------
-        #ifdef USE_OFXFTGL
-            map<string, ofxFTGLFont> fonts;
-        #else
-            map<string, ofTrueTypeFont> fonts;
-        #endif
+		map<string, ofTrueTypeFont> fonts;
+		
+		// drawing
+		SVGDrawingMode drawingMode;
+		ofFbo fboForDrawing;
+		ofTexture texForDrawing;
+		ofVbo vboForDrawing;
+	
 
         // SVG Data/Infos
         //----------------------------------
@@ -130,10 +157,10 @@ class ofxSVG{
 		int						currentSaveNode;
 		ofxSVGXml				saveXml;
 		map<string, string>		currentAttributes;
-		vector<ofxMatrix3x3>	matrices; 
+		vector<ofMatrix3x3>	matrices; 
 		string createAttribute(string element, ...);
-		void matrixFromString(string smat, ofxMatrix3x3 mat);
-		void stringFromMatrix(string* smat, ofxMatrix3x3 mat);
+		void matrixFromString(string smat, ofMatrix3x3 mat);
+		void stringFromMatrix(string* smat, ofMatrix3x3 mat);
 	
 		//  create root
         //----------------------------------

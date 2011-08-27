@@ -1,8 +1,6 @@
-#ifndef OFX_SVGTYPES
-#define OFX_SVGTYPES
+#pragma once
 
-#include "ofxVec2f.h"
-#include "ofxDisplayList.h"
+
 
 enum {
     ofxSVGObject_Text,
@@ -15,7 +13,7 @@ enum {
     ofxSVGObject_Path,
 	
     ofxSVGRender_DirectMode,
-    ofxSVGRender_DisplayList,
+    ofxSVGRender_FBO,
     ofxSVGRender_VertexArray,
     ofxSVGRender_VertexBufferObject,
 	
@@ -30,14 +28,9 @@ class ofxSVGObject {
 public:
     void draw(){
         switch(renderMode){
-            case ofxSVGRender_DirectMode:
-				break;
-            case ofxSVGRender_DisplayList:
-                dl.draw();
-				break;
             case ofxSVGRender_VertexArray:
 				break;
-            case ofxSVGRender_VertexBufferObject:
+            case ofxSVGRender_FBO:
 				break;
             default:
                 printf("OfxSVGObject: RenderMode Undefined");
@@ -53,8 +46,6 @@ public:
     int             stroke;
     int             strokeWeight;
     float           opacity;
-	
-    ofxDisplayList  dl;
 	
     vector<ofPoint> vertexs;
 };
@@ -110,7 +101,8 @@ public:
 };
 class ofxSVGPath : public ofxSVGObject {
 public:
-	vector<ofxSVGPoint> vectorData;
+	//vector<ofxSVGPoint> vectorData;
+	ofPath path;
 };
 
 class ofxComplexSVGPath : public ofxSVGObject {
@@ -159,4 +151,3 @@ public:
 };
 
 
-#endif

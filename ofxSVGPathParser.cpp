@@ -19,7 +19,7 @@ void ofxSVGPathParser::parse(const char** attr)
 		
 	s = attr[0];
 	
-	svgResetPath();
+	pathInstance->newSubPath();
 	closedFlag = 0;
 	nargs = 0;
 	
@@ -83,12 +83,13 @@ void ofxSVGPathParser::parse(const char** attr)
 			rargs = getArgsPerElement(cmd);
 			if (cmd == 'M' || cmd == 'm')
 			{
-				// Commit path.	
+				// Commit path->	
 				// TODO get all the transform/translate/etc data from the parent?
 				// or just return out of this and handle in the parent?
-				//path = new vector<ofxVec2f*>();
-				// Start new subpath.
+				//path = new vector<ofVec2f*>();
+				// Start new subpath->
 				//svgResetPath();
+				pathInstance->close();
 				closedFlag = 0;
 				nargs = 0;
 				cpx = 0; cpy = 0;
@@ -96,26 +97,24 @@ void ofxSVGPathParser::parse(const char** attr)
 			else if (cmd == 'Z' || cmd == 'z')
 			{
 				closedFlag = 1;
-				// Commit path.
-				//path = new vector<ofxVec2f*>();
-				// Start new subpath.
-				svgResetPath();
+				// Commit path->
+				//path = new vector<ofVec2f*>();
+				// Start new subpath->
+				pathInstance->close();
 				closedFlag = 0;
 				nargs = 0;
 			}
 		}
 	}
-	/*
-	// Commit path.
-	path = new vector<ofxVec2f*>();
-	*/	
+	pathInstance->close();
 }
 
 
 void ofxSVGPathParser::cubicBez(float x1, float y1, float cx1, float cy1, float cx2, float cy2, float x2, float y2)
 {
 	cubicBezRec(x1,y1, cx1,cy1, cx2,cy2, x2,y2, 0); 
-	svgPathPoint(x2, y2);
+	//svgPathPoint(x2, y2);
+	pathInstance->lineTo(x1, y1);
 }
 
 void ofxSVGPathParser::quadBezRec( float x1, float y1, float x2, float y2, float x3, float y3, int level)
@@ -134,7 +133,7 @@ void ofxSVGPathParser::quadBezRec( float x1, float y1, float x2, float y2, float
 	d = distPtSeg(x123, y123, x1,y1, x3,y3);
 	if (level > 0 && d < 1000) // tol*tol)
 	{
-		svgPathPoint(x123, y123);
+		pathInstance->lineTo( x123, y123 );//svgPathPoint(x123, y123);
 		return;
 	}
 	
@@ -145,7 +144,7 @@ void ofxSVGPathParser::quadBezRec( float x1, float y1, float x2, float y2, float
 void ofxSVGPathParser::quadBez(float x1, float y1, float cx, float cy, float x2, float y2)
 {
 	quadBezRec(x1,y1, cx,cy, x2,y2, 0); 
-	svgPathPoint(x2, y2);
+	pathInstance->lineTo( x2, y2 );
 }
 
 
@@ -176,6 +175,7 @@ void ofxSVGPathParser::pathCubicBezTo(float* cpx, float* cpy, float* cpx2, float
 	}
 	
 	cubicBez(x1,y1, cx1,cy1, cx2,cy2, x2,y2);
+	//pathInstance->bezierTo(*x1, *y1, *cx1, *cy1, *cx2, *cy2, *x2, *y2);
 	
 	*cpx2 = cx2;
 	*cpy2 = cy2;
@@ -208,6 +208,7 @@ void ofxSVGPathParser::pathCubicBezShortTo(float* cpx, float* cpy,	float* cpx2, 
 	cy1 = 2*y1 - *cpy2;
 	
 	cubicBez(x1,y1, cx1,cy1, cx2,cy2, x2,y2);
+	//pathInstance->quadBezierTo(x1, y1, cx1, cy1, cx2, cy2, x2, y2);
 	
 	*cpx2 = cx2;
 	*cpy2 = cy2;
@@ -236,7 +237,8 @@ void ofxSVGPathParser::pathQuadBezTo(float* cpx, float* cpy, float* cpx2, float*
 		y2 = args[3];
 	}
 	
-	quadBez(x1,y1, cx,cy, x2,y2);
+	//quadBez(x1,y1, cx,cy, x2,y2);
+	pathInstance->quadBezierTo(x1, y1, cx, cy, x2, y2);
 	
 	*cpx2 = cx;
 	*cpy2 = cy;
@@ -295,7 +297,7 @@ void ofxSVGPathParser::cubicBezRec(float x1, float y1, float x2, float y2, float
 	d = distPtSeg(x1234, y1234, x1,y1, x4,y4);
 	if (level > 0 && d < 1000)//tol*tol)
 	{
-		svgPathPoint(x1234, y1234);
+		pathInstance->lineTo( x1234, y1234 );//svgPathPoint(x1234, y1234);
 		return;
 	}
 	
@@ -315,7 +317,8 @@ void ofxSVGPathParser::pathLineTo(float* cpx, float* cpy, float* args, int rel)
 		*cpx = args[0];
 		*cpy = args[1];
 	}
-	svgPathPoint(*cpx, *cpy);
+	
+	pathInstance->lineTo(*cpx, *cpy);
 }
 
 void ofxSVGPathParser::pathHLineTo(float* cpx, float* cpy, float* args, int rel)
@@ -324,7 +327,8 @@ void ofxSVGPathParser::pathHLineTo(float* cpx, float* cpy, float* args, int rel)
 		*cpx += args[0];
 	else
 		*cpx = args[0];
-	svgPathPoint(*cpx, *cpy);
+	
+	pathInstance->lineTo(*cpx, *cpy);
 }
 
 void ofxSVGPathParser::pathVLineTo(float* cpx, float* cpy, float* args, int rel)
@@ -333,7 +337,8 @@ void ofxSVGPathParser::pathVLineTo(float* cpx, float* cpy, float* args, int rel)
 		*cpy += args[0];
 	else
 		*cpy = args[0];
-	svgPathPoint(*cpx, *cpy);
+	
+	pathInstance->lineTo(*cpx, *cpy);
 }
 
 float ofxSVGPathParser::distPtSeg(float x, float y, float px, float py, float qx, float qy)
@@ -405,30 +410,8 @@ const char* ofxSVGPathParser::getNextPathItem(const char* s, char* it)
 	return s;
 }
 
-
-void ofxSVGPathParser::svgPathPoint(float x, float y) {
-	printf(" new point %f %f length %i \n", x, y, path->size());
-	ofxVec2f v(x, y);
-	path->push_back(v);
-}
-
 int ofxSVGPathParser::isnum(char c)
 {
 	return strchr("0123456789+-.eE", c) != 0;
 }
 
-void ofxSVGPathParser::svgResetPath() 
-{
-	path 
-	cout << " last added path size " << pathInstance->paths.at(pathInstance->paths.size()-1)->size())<< endl;
-	path = new vector<ofVec2f>();
-	/*
-	for (i = 0; i<pathInstance->paths.size(); i++) {
-		for (j = 0; j<pathInstance->paths.at(i)->size(); j++) {
-			printf(" %f %f ", pathInstance->paths.at(i)->at(j).x, pathInstance->paths.at(i)->at(j).y);
-		}
-	}*/
-	
-	//	path = &vp;
-	npos = 0;
-}
