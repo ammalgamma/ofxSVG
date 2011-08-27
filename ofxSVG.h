@@ -67,9 +67,12 @@ class ofxSVG{
 		string      getLayerActive(string layerName);        /*not implemented*/
 		void saveToFile(string filename);	
 		ofxVec2f scaleFromMatrix(string matrix);
-	float scale(string scaleVal);
+		float scale(string scaleVal);
 	
 		vector< ofxSVGLayer >   layers;
+	
+		bool isInsidePolygon(ofxSVGPath *path, ofPoint p);
+	
     private:
 
         // Parsing

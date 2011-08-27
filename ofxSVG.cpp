@@ -887,6 +887,46 @@ void ofxSVG::parsePath(){
 		layers[layers.size()-1].objects.push_back(obj);
 }
 
+
+
+bool ofxSVG::isInsidePolygon(ofxSVGPath *path, ofPoint p)
+{
+		/* Based on code from:
+			 http://local.wasp.uwa.edu.au/~pbourke/geometry/insidepoly/
+			 adapted to work with openframeworks/ofxSVG by Noto Yota multimedialab, 2010
+			 */
+		int counter = 0;
+		int i,N;
+		double xinters;
+		
+		ofPoint p1,p2;
+		
+		p1 = path->vectorData[0].p;
+		N = path->vectorData.size();
+		
+		for (i=1;i<=N;i++) {
+			p2 = path->vectorData[i % N].p;
+			if (p.y > MIN(p1.y,p2.y)) {
+				if (p.y <= MAX(p1.y,p2.y)) {
+					if (p.x <= MAX(p1.x,p2.x)) {
+						if (p1.y != p2.y) {
+							xinters = (p.y-p1.y)*(p2.x-p1.x)/(p2.y-p1.y)+p1.x;
+							if (p1.x == p2.x || p.x <= xinters)
+								counter++;
+							}
+						}
+					}
+				}
+			p1 = p2;
+			}
+		
+		if (counter % 2 == 0)
+			return(false);
+	else
+	return(true);
+}
+
+
 /*
  * JN - This is still experimental and not quite ready for primetime, however, feel free to play with it
  */
