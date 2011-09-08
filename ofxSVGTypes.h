@@ -12,10 +12,10 @@ enum {
 	ofxSVGObject_Polyline,
     ofxSVGObject_Path,
 	
-    ofxSVGRender_DirectMode,
-    ofxSVGRender_FBO,
+    ofxSVGRender_Texture,
     ofxSVGRender_VertexArray,
-    ofxSVGRender_VertexBufferObject,
+    ofxSVGRender_VBO,
+	ofxSVGRender_FBO,
 	
 	ofxSVGVector_Point,
 	ofxSVGVector_BezierPoint,
@@ -26,17 +26,9 @@ enum {
 
 class ofxSVGObject {
 public:
-    void draw(){
-        switch(renderMode){
-            case ofxSVGRender_VertexArray:
-				break;
-            case ofxSVGRender_FBO:
-				break;
-            default:
-                printf("OfxSVGObject: RenderMode Undefined");
-				break;
-        }
-    }
+    
+	void draw() {}
+	
     int             renderMode;
     int             type;
 	
@@ -45,6 +37,8 @@ public:
     int             fill;
     int             stroke;
     int             strokeWeight;
+	ofColor			fillColor;
+	ofColor			strokeColor;
     float           opacity;
 	
     vector<ofPoint> vertexs;
@@ -53,21 +47,56 @@ public:
 class ofxSVGRectangle : public ofxSVGObject {
 public:
     float x, y, width, height;
+	
+	void draw() {
+		ofSetLineWidth(strokeWeight);
+		ofFill();
+		ofSetColor(fillColor);
+		ofRect(x, y, width, height);
+		ofSetColor(strokeColor);
+		ofRect(x, y, width, height);
+	}
 };
 
 class ofxSVGEllipse : public ofxSVGObject {
 public:
     float x, y, rx, ry;
+	
+	void draw() {
+		ofSetLineWidth(strokeWeight);
+		ofFill();
+		ofSetColor(fillColor);
+		ofEllipse(x, y, rx, ry);
+		ofNoFill();
+		ofSetColor(strokeColor);
+		ofRect(x, y, rx, ry);
+	}
 };
 
 class ofxSVGCircle : public ofxSVGObject {
 public:
     float x, y, r;
+	
+	void draw() {
+		ofSetLineWidth(strokeWeight);
+		ofFill();
+		ofSetColor(fillColor);
+		ofCircle(x, y, r);
+		ofNoFill();
+		ofSetColor(strokeColor);
+		ofCircle(x, y, r);
+	}
 };
 
 class ofxSVGLine : public ofxSVGObject {
 public:
     float x1, y1, x2, y2;
+	
+	void draw() {
+		ofSetLineWidth(strokeWeight);
+		ofSetColor(strokeColor);
+		ofLine(x1, y1, x2, y2);
+	}
 };
 
 class ofxSVGText : public ofxSVGObject {
@@ -77,6 +106,16 @@ public:
     vector<string>  fonts;
     vector<int>  colors;
 	//ofTTFCharacters	characters; // these can be enabled later
+	
+	void draw() {
+		/*ofSetLineWidth(strokeWeight);
+		ofFill();
+		ofSetColor(fillColor);
+		ofCircle(x, y, r);
+		ofNoFill();
+		ofSetColor(strokeColor);
+		ofCircle(x, y, r);*/
+	}
 };
 
 class ofxSVGPolygon : public ofxSVGObject {
@@ -103,6 +142,14 @@ class ofxSVGPath : public ofxSVGObject {
 public:
 	//vector<ofxSVGPoint> vectorData;
 	ofPath path;
+	
+	void draw() {
+		ofSetLineWidth(strokeWeight);
+		ofFill();
+		ofSetColor(fillColor);
+		path.draw();
+	}
+	
 };
 
 class ofxComplexSVGPath : public ofxSVGObject {
@@ -140,14 +187,93 @@ public:
 class ofxSVGLayer {
 public:
 	
-    void draw(){
-        for(int i=0; i<objects.size(); i++){
-            objects[i]->draw();
-        }
+	ofxSVGLayer( int mode = 0 ) {
+		// if the layers need to have their own objects, then we need to declare
+		// them with those
+		switch ( renderMode ) {
+			case ofxSVGRender_VBO:
+				layerVBO = new ofVbo();
+				break;
+			case ofxSVGRender_FBO:
+				layerFBO = new ofFbo();
+				break;
+			case ofxSVGRender_Texture:
+				layerTex = new ofTexture();
+				break;
+			default:
+				break;
+		}
+	}
+	
+	void render() {
+		
+		switch ( renderMode ) {
+			case ofxSVGRender_VBO:
+				
+				layerVBO->bind();
+				for(int i=0; i<objects.size(); i++){
+					objects[i]->draw();
+				}
+				
+				layerVBO->unbind();
+				break;
+			case ofxSVGRender_FBO:
+				layerFBO->bind();
+				for(int i=0; i<objects.size(); i++){
+					objects[i]->draw();
+				}
+				
+				layerFBO->unbind();
+				break;
+			case ofxSVGRender_Texture:
+				layerTex->bind();
+				for(int i=0; i<objects.size(); i++){
+					objects[i]->draw();
+				}
+				
+				layerTex->unbind();
+				break;
+			default:
+			{
+				for(int i=0; i<objects.size(); i++){
+					objects[i]->draw();
+				}
+			}
+				break;
+		}
+		
+	}
+	
+    void draw()
+	{
+		
+		switch ( renderMode ) {
+			case ofxSVGRender_VBO:
+				//layerVBO->draw(GL_QUADS); // this isn't ready yet
+				break;
+			case ofxSVGRender_FBO:
+				layerFBO->draw(0, 0);
+				break;
+			case ofxSVGRender_Texture:
+				layerTex->draw(0, 0);
+				break;
+			default:
+			{
+				for(int i=0; i<objects.size(); i++){
+					objects[i]->draw();
+					}
+				}
+				break;
+		}
     }
 
     string                  name;
-    vector<ofxSVGObject*>    objects;
+    vector<ofxSVGObject*>   objects;
+	int						renderMode;
+	
+	ofVbo *layerVBO;
+	ofFbo *layerFBO;
+	ofTexture *layerTex;
 };
 
 

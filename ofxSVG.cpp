@@ -283,6 +283,7 @@ void ofxSVG::parseRect(){
         // Display List
         //--------------------------------
 		
+		
         ofPushMatrix();
 
         if(transform!=""){
@@ -300,7 +301,9 @@ void ofxSVG::parseRect(){
 				float r = (rgb >> 16) & 0xFF;
 				float g = (rgb >> 8) & 0xFF;
 				float b = (rgb) & 0xFF;
-				ofSetColor(r,g,b,alpha);
+				ofColor fillc(r,g,b,alpha);
+				obj->fillColor = fillc;
+				ofSetColor(fillc);
 			}
             else ofSetColor(0,0,0,alpha);
             ofRect(x, y,width,height);
@@ -315,12 +318,17 @@ void ofxSVG::parseRect(){
             float r = (rgb >> 16) & 0xFF;
             float g = (rgb >> 8) & 0xFF;
             float b = (rgb) & 0xFF;
-            ofSetColor(r,g,b,alpha);
+			ofColor str(r,g,b,alpha);
+            ofSetColor(str);
+			obj->strokeColor = str;
+			if(strokeWeight!="") {
+				obj->strokeWeight = atof(strokeWeight.c_str());
+				ofSetLineWidth( atof(strokeWeight.c_str()) );
+			}
             ofRect(x,y,width,height);
-            if(strokeWeight!="") ofSetLineWidth(1);
         }
 
-        glPopMatrix();
+        ofPopMatrix();
 
         // Vertexs
         //--------------------------------
@@ -370,12 +378,14 @@ void ofxSVG::parseCircle(){
         if(opacity!="")
             ofEnableAlphaBlending();
         if(fill!=""){
-            int rgb = strtol(("0x"+fill.substr(1, fill.length()-1)).c_str(), NULL, 0);
-            float r = (rgb >> 16) & 0xFF;
-            float g = (rgb >> 8) & 0xFF;
-            float b = (rgb) & 0xFF;
-            ofSetColor(r,g,b,alpha);
-        }
+			int rgb = strtol(("0x"+fill.substr(1, fill.length()-1)).c_str(), NULL, 0);
+			float r = (rgb >> 16) & 0xFF;
+			float g = (rgb >> 8) & 0xFF;
+			float b = (rgb) & 0xFF;
+			ofColor fillc(r,g,b,alpha);
+			obj->fillColor = fillc;
+			ofSetColor(fillc);
+		}
         else ofSetColor(0,0,0,alpha);
         ofCircle(x,y,r);
 		ofDisableAlphaBlending();
@@ -393,12 +403,17 @@ void ofxSVG::parseCircle(){
             float r = (rgb >> 16) & 0xFF;
             float g = (rgb >> 8) & 0xFF;
             float b = (rgb) & 0xFF;
-            ofSetColor(r,g,b,alpha);
-        }
-        else ofSetColor(0,0,0,alpha);
-        ofSetLineWidth(1);
+            ofColor str(r,g,b,alpha);
+            ofSetColor(str);
+			obj->strokeColor = str;
+			if(strokeWeight!="") {
+				obj->strokeWeight = atof(strokeWeight.c_str());
+				ofSetLineWidth( atof(strokeWeight.c_str()) );
+			}
+        } else { 
+			ofSetColor(0,0,0,alpha);
+		}
         ofCircle(x,y,r);
-        if(strokeWeight!="") ofSetLineWidth(1);
 		ofDisableAlphaBlending();
     }
 
@@ -458,12 +473,14 @@ void ofxSVG::parseEllipse(){
         if(opacity!="")
             ofEnableAlphaBlending();
         if(fill!=""){
-            int rgb = strtol(("0x"+fill.substr(1, fill.length()-1)).c_str(), NULL, 0);
-            float r = (rgb >> 16) & 0xFF;
-            float g = (rgb >> 8) & 0xFF;
-            float b = (rgb) & 0xFF;
-            ofSetColor(r,g,b,alpha);
-        }
+			int rgb = strtol(("0x"+fill.substr(1, fill.length()-1)).c_str(), NULL, 0);
+			float r = (rgb >> 16) & 0xFF;
+			float g = (rgb >> 8) & 0xFF;
+			float b = (rgb) & 0xFF;
+			ofColor fillc(r,g,b,alpha);
+			obj->fillColor = fillc;
+			ofSetColor(fillc);
+		}
         else ofSetColor(0,0,0,alpha);
         ofEllipse(x,y,rx,ry);
 		ofDisableAlphaBlending();
@@ -595,12 +612,14 @@ void ofxSVG::parsePolygon(){
         if(opacity!="")
             ofEnableAlphaBlending();
         if(fill!=""){
-            int rgb = strtol(("0x"+fill.substr(1, fill.length()-1)).c_str(), NULL, 0);
-            float r = (rgb >> 16) & 0xFF;
-            float g = (rgb >> 8) & 0xFF;
-            float b = (rgb) & 0xFF;
-            ofSetColor(r,g,b,alpha);
-        }
+			int rgb = strtol(("0x"+fill.substr(1, fill.length()-1)).c_str(), NULL, 0);
+			float r = (rgb >> 16) & 0xFF;
+			float g = (rgb >> 8) & 0xFF;
+			float b = (rgb) & 0xFF;
+			ofColor fillc(r,g,b,alpha);
+			obj->fillColor = fillc;
+			ofSetColor(fillc);
+		}
         else ofSetColor(0,0,0,alpha);
         ofBeginShape();
         for(int i=0; i<obj->vertexs.size(); i++) ofVertex(obj->vertexs[i].x, obj->vertexs[i].y);
