@@ -2,10 +2,9 @@
 
 static int currentToken;
 
-void ofxSVGPathParser::parse(const char** attr)
+void ofxSVGPathParser::parse(string& path)
 {
 	nbuf = 0;
-	const char* s;
 	char cmd;
 	float args[10];
 	int nargs;
@@ -16,24 +15,26 @@ void ofxSVGPathParser::parse(const char** attr)
 	int i;
 	char item[64];
 	
-		
-	s = attr[0];
+	string::iterator s = path.begin();
 	
 	pathInstance->newSubPath();
 	closedFlag = 0;
 	nargs = 0;
 	
-	while (*s)
+	while (s != path.end())
 	{
-		s = getNextPathItem(s, item);
+		getNextPathItem(s, item);
 		if (!*item) break;
 		
 		if (isnum(item[0]))
 		{
-			if (nargs < 10)
-				args[nargs++] = (float)atof(item);
+			if (nargs < 10) {
+				args[nargs++] = (float) atof(item);
+			}
+			
 			if (nargs >= rargs)
 			{
+				cout << " command " << cmd << endl;
 				switch (cmd)
 				{
 					case 'm':
@@ -360,6 +361,9 @@ float ofxSVGPathParser::distPtSeg(float x, float y, float px, float py, float qx
 
 int ofxSVGPathParser::getArgsPerElement(char cmd)
 {
+	
+	cout << "ofxSVGPathParser::getArgsPerElement " << cmd << endl;
+	
 	switch (tolower(cmd))
 	{
 		case 'v':
@@ -380,34 +384,35 @@ int ofxSVGPathParser::getArgsPerElement(char cmd)
 	return 0;
 }
 
-const char* ofxSVGPathParser::getNextPathItem(const char* s, char* it)
+void ofxSVGPathParser::getNextPathItem(string::iterator &s, char* it)
 {
 	int i = 0;
 	it[0] = '\0';
 	// Skip white spaces and commas
-	while (*s && (isspace(*s) || *s == ',')) s++;
-	if (!*s) return s;
+	while (*s && (isspace(*s) || *s == ',')) ++s;
+	if (!*s) return;
 	if (*s == '-' || *s == '+' || isnum(*s))
 	{
 		while (*s == '-' || *s == '+')
 		{
 			if (i < 63) it[i++] = *s;
-			s++;
+			++s;
 		}
 		while (*s && *s != '-' && *s != '+' && isnum(*s))
 		{
 			if (i < 63) it[i++] = *s;
-			s++;
+			++s;
 		}
 		it[i] = '\0';
 	}
 	else
 	{
-		it[0] = *s++;
+		it[0] = *s;
 		it[1] = '\0';
-		return s;
+		++s;
+		return;
 	}
-	return s;
+	return;
 }
 
 int ofxSVGPathParser::isnum(char c)

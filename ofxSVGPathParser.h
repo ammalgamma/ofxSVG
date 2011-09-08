@@ -26,7 +26,7 @@ public:
 		pathInstance = p;
 	}
 	
-	void  parse(const char** attr);
+	void  parse(string &path);
 	
 	float distPtSeg(float x, float y, float px, float py, float qx, float qy);
 	void pathCubicBezTo(float* cpx, float* cpy, float* cpx2, float* cpy2, float* args, int rel);
@@ -51,7 +51,7 @@ public:
 	void quadBez(float x1, float y1, float cx, float cy, float x2, float y2);
 	//void svgPathPoint(float x, float y);
 	int getArgsPerElement(char cmd);
-	const char* getNextPathItem(const char* s, char* it);
+	void getNextPathItem(string::iterator &s, char* it);
 	int isnum(char c);
 	
 private:

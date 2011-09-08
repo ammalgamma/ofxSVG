@@ -195,6 +195,8 @@ void ofxSVG::parseLayer(){
         currentIteration = i;
 
         string name = svgXml.getName(i);
+		
+		cout << "name " << name << endl;
 
         if(name == "rect")  parseRect();
         else if(name == "circle") parseCircle();
@@ -880,8 +882,6 @@ void ofxSVG::parsePath(){
 		// Vector Data to vertexs
 		//--------------------------------
 		//vectorDataToVertexs(obj, 0.1f);
-	
-		ofxSVGPathParser parse(&obj->path);
 		
 		// Display List
 		//--------------------------------
@@ -1020,26 +1020,14 @@ void ofxSVG::parsePathExperimental() {
 	obj->name        = svgXml.getAttribute("id", currentIteration);
 	
 	ofxSVGPathParser parser(&obj->path);
-	
-	const char* c = pathStr.c_str();
-	
-	parser.parse(&c);
+
+	parser.parse(pathStr);
 	
 	string fill = svgXml.getAttribute("fill", currentIteration);
 	string stroke = svgXml.getAttribute("stroke", currentIteration);
 	string opacity = svgXml.getAttribute("opacity", currentIteration);
 	float alpha = (opacity=="") ? 255.0f : ofToFloat(opacity) * 255.0f;
-	
-	// Shape info
-	//--------------------------------
-	
-	//obj->type        = ofxSVGPath;
-	//obj->name        = svgXml.getAttribute("id", currentIteration);
-	
-	
-	// Display List
-	//--------------------------------
-	
+
 	beginRenderer();
 	
 	if(fill!="none"){
@@ -1052,6 +1040,7 @@ void ofxSVG::parsePathExperimental() {
 			float g = (rgb >> 8) & 0xFF;
 			float b = (rgb) & 0xFF;
 			ofSetColor(r,g,b,alpha);
+			obj->path.setColor(ofColor(r,g,b,alpha));
 		}
 		else ofSetColor(0,0,0,alpha);
 		
@@ -1073,9 +1062,11 @@ void ofxSVG::parsePathExperimental() {
 		//drawVectorDataExperimental(obj);
 		obj->path.draw(0, 0); //drawVectorDataExperimental(obj);
 		
-		if(strokeWeight!="") ofSetLineWidth(1);
+		if(strokeWeight!="") {
+			ofSetLineWidth( atof(strokeWeight.c_str()) );
+			obj->path.setStrokeWidth( atof(strokeWeight.c_str()) );
+		}
 	}
-	
 	
 	endRenderer();
 	
