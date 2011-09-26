@@ -31,7 +31,7 @@ void ofxSVG::load(string svgPath){
         // Check if SVG
         //----------------------------------------
         if(svgString.find("<svg") == -1 && bVerbose){
-            printf("ofxSVG: Unknown Format.");
+            cout<<"ofxSVG: Unknown Format."<<endl;
             return;
         }
         else {

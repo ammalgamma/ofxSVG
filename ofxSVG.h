@@ -6,6 +6,7 @@
 
 #include "ofxSVGXml.h"
 #include "ofxSVGTypes.h"
+#include "ofxSVGUtils.h"
 
 
 enum SVGDrawingMode { DRAW_VERTEX_ARRAY, DRAW_FBO, DRAW_TEXTURE, DRAW_VBO };
