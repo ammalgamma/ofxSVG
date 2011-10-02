@@ -115,7 +115,7 @@ void ofxSVGPathParser::cubicBez(float x1, float y1, float cx1, float cy1, float 
 {
 	cubicBezRec(x1,y1, cx1,cy1, cx2,cy2, x2,y2, 0); 
 	//svgPathPoint(x2, y2);
-	pathInstance->lineTo(x1, y1);
+	//pathInstance->lineTo(x1, y1);
 }
 
 void ofxSVGPathParser::quadBezRec( float x1, float y1, float x2, float y2, float x3, float y3, int level)
@@ -134,7 +134,7 @@ void ofxSVGPathParser::quadBezRec( float x1, float y1, float x2, float y2, float
 	d = distPtSeg(x123, y123, x1,y1, x3,y3);
 	if (level > 0 && d < 1000) // tol*tol)
 	{
-		pathInstance->lineTo( x123, y123 );//svgPathPoint(x123, y123);
+		pathInstance->quadBezierTo(ofPoint(x1, x2), ofPoint(y2, y3), ofPoint( x123, y123 ));
 		return;
 	}
 	
@@ -145,7 +145,6 @@ void ofxSVGPathParser::quadBezRec( float x1, float y1, float x2, float y2, float
 void ofxSVGPathParser::quadBez(float x1, float y1, float cx, float cy, float x2, float y2)
 {
 	quadBezRec(x1,y1, cx,cy, x2,y2, 0); 
-	pathInstance->lineTo( x2, y2 );
 }
 
 
@@ -238,8 +237,8 @@ void ofxSVGPathParser::pathQuadBezTo(float* cpx, float* cpy, float* cpx2, float*
 		y2 = args[3];
 	}
 	
-	//quadBez(x1,y1, cx,cy, x2,y2);
-	pathInstance->quadBezierTo(x1, y1, cx, cy, x2, y2);
+	quadBez(x1,y1, cx,cy, x2,y2);
+	//pathInstance->quadBezierTo(x1, y1, cx, cy, x2, y2);
 	
 	*cpx2 = cx;
 	*cpy2 = cy;
@@ -298,7 +297,7 @@ void ofxSVGPathParser::cubicBezRec(float x1, float y1, float x2, float y2, float
 	d = distPtSeg(x1234, y1234, x1,y1, x4,y4);
 	if (level > 0 && d < 1000)//tol*tol)
 	{
-		pathInstance->lineTo( x1234, y1234 );//svgPathPoint(x1234, y1234);
+		pathInstance->quadBezierTo( ofPoint(x4, y4), ofPoint(x2, y2), ofPoint(x3, y3) );//svgPathPoint(x1234, y1234);
 		return;
 	}
 	

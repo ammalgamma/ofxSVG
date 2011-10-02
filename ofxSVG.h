@@ -8,9 +8,6 @@
 #include "ofxSVGTypes.h"
 #include "ofxSVGUtils.h"
 
-
-enum SVGDrawingMode { DRAW_VERTEX_ARRAY, DRAW_FBO, DRAW_TEXTURE, DRAW_VBO };
-
 //-------------------------------------------------
 
 class ofxSVG{
@@ -29,7 +26,7 @@ class ofxSVG{
 	
 		~ofxSVG();
 	
-		void setDrawingMode( SVGDrawingMode mode );
+	void setDrawingMode( SVGDrawingMode mode ) { drawingMode = mode; }
 
         // Loading
         //----------------------------------
@@ -92,6 +89,8 @@ class ofxSVG{
 	void beginRenderer();
 	void endRenderer();
 	
+	void parseFill(ofxSVGXml *svgXml, ofxSVGObject *obj, string opacity, string fill);
+	void parseStroke(ofxSVGXml *svgXml, ofxSVGObject *obj, string stroke, string fill);
 	
     private:
 	
@@ -112,15 +111,8 @@ class ofxSVG{
         void parsePolygon();
         void parseText();
         void parsePath();
-		void parsePathExperimental();
+		//void parsePathExperimental();
 		void parseImage();
-
-        // Taken from Theo ofxSVGLoader
-        //----------------------------------
-        //void pathToVectorData(string pathStr, ofxSVGPath* obj);
-		//void vectorDataToVertexs(ofxSVGPath* path, float resampleDist);
-		//vector<ofPoint> singleBezierToPtsWithResample(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3, float resampleDist);
-		//void drawVectorData(ofxSVGPath* path);
 	
 		void drawVectorDataExperimental(ofPath* object);
 
