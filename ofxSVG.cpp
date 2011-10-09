@@ -68,24 +68,35 @@ void ofxSVG::load(string svgPath){
 		svgXml.pushTag("switch");
 		pops++;
 	}
-	if(svgXml.tagExists("g")) {
-		svgXml.pushTag("g");
-		pops++;
-	}
+	//if(svgXml.tagExists("g")) {
+	//	svgXml.pushTag("g");
+	//	pops++;
+	//}
 
 	// Read Number of Layers
 	int nLayers = svgXml.getNumTags("g");
 
-	if(nLayers == 0) { // Only one layer
+	//if(nLayers == 0) { // Only one layer
+	if(nLayers == 1) {
 		
 		if(bVerbose) {
-			cout<<"ofxSVG: Loading one layers."<<endl;
+			cout<<"ofxSVG: Loading one layer."<<endl;
 		}
 		
 		ofxSVGLayer layer;
 		layer.name = svgXml.getAttribute("g", "id", "");
+		
+		cout << layer.name << endl;
+		
+		string transform = svgXml.getAttribute("g", "transform", "");
+		cout << transform << endl;
+		if(transform != "") {
+			ofxSVGUtils utils;
+			utils.parseTransform(layer.mat, transform);
+		}
+		
 		layers.push_back( layer );
-
+		
 		parseLayer();
 		
 	} else { // Multiple Layers
@@ -98,6 +109,13 @@ void ofxSVG::load(string svgPath){
 			
 			ofxSVGLayer layer(drawingMode);
 			layer.name = svgXml.getAttribute("g", "id", "", i);
+			
+			string transform = svgXml.getAttribute("g", "transform", "", i);
+			if(transform != "") {
+				ofxSVGUtils utils;
+				utils.parseTransform(layer.mat, transform);
+			}
+			
 			layers.push_back( layer );
 
 			if(bVerbose) {
@@ -186,10 +204,6 @@ void ofxSVG::parseLayer(){
         currentIteration = i;
 
         string name = svgXml.getName(currentIteration);
-		string transform = svgXml.getAttribute("transform", currentIteration);
-		if(transform != "") {
-			ofxSVGUtils::parseTransform(layers.at(currentIteration).mat, transform);
-		}
 		
 		cout << "name " << name << endl;
 

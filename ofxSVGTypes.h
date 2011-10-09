@@ -262,6 +262,7 @@ public:
 class ofxSVGLayer {
 public:
 	
+	
 	ofxSVGLayer( SVGDrawingMode mode = DRAW_VERTEX_ARRAY) {
 		// if the layers need to have their own objects, then we need to declare
 		// them with those
@@ -313,9 +314,24 @@ public:
 				layerTex->unbind();
 				break;
 			case DRAW_VERTEX_ARRAY:
+				
+				ofPushMatrix();
+				
+				// I think I want ofMultMatrix
+				
+				ofVec3f trans, scale;
+				ofQuaternion rot, so;
+				
+				mat.decompose(trans, rot, scale, so); // svg doesn't really support so
+				ofTranslate(trans);
+				ofRotate(rot.w(), rot.x(), rot.y(), rot.z());
+				ofScale(scale.x, scale.y, scale.z);
+				
 				for(int i=0; i<objects.size(); i++){
 					objects[i]->render();
 				}
+				
+				ofPopMatrix();
 			break;
 		}
 		
@@ -335,9 +351,23 @@ public:
 				layerTex->draw(0, 0);
 				break;
 			case DRAW_VERTEX_ARRAY:
+				ofPushMatrix();
+				
+				// I think I want ofMultMatrix
+				
+				ofVec3f trans, scale;
+				ofQuaternion rot, so;
+				
+				mat.decompose(trans, rot, scale, so); // svg doesn't really support so
+				ofTranslate(trans);
+				ofRotate(rot.w()*RAD_TO_DEG, rot.x(), rot.y(), rot.z());
+				ofScale(scale.x, scale.y, scale.z);
+				
 				for(int i=0; i<objects.size(); i++){
 					objects[i]->draw();
 				}
+				
+				ofPopMatrix();
 			break;
 		}
     }
