@@ -286,7 +286,6 @@ void ofxSVG::parseRect(){
 		}
 
         // Vertexs
-        //--------------------------------
         obj->vertexs.push_back(ofPoint(x, y));
         obj->vertexs.push_back(ofPoint(x+width, y));
         obj->vertexs.push_back(ofPoint(x+width, y+height));
