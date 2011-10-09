@@ -360,7 +360,7 @@ public:
 				
 				mat.decompose(trans, rot, scale, so); // svg doesn't really support so
 				ofTranslate(trans);
-				ofRotate(rot.w()*RAD_TO_DEG, rot.x(), rot.y(), rot.z());
+				ofRotate(rot.w()*RAD_TO_DEG, rot.x(), rot.y(), 0);
 				ofScale(scale.x, scale.y, scale.z);
 				
 				for(int i=0; i<objects.size(); i++){
