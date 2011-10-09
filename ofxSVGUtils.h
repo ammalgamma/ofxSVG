@@ -270,33 +270,35 @@ private:
 		memcpy(copy, str, count);
 		*dst = float (::atof(copy));
 	};
+
+	static const uint8_t asciiCTypeData[256];
 	
-	static inline bool isAsciiBlank(const char *c) { return (*c & ofxSVGConstant::ASCII_CLASS_BLANK) != 0; };
-	static inline bool isAsciiCntrl(const char *c) { return (*c & ofxSVGConstant::ASCII_CLASS_PRINT) == 0; };
-	static inline bool isAsciiDigit(const char *c) { return (*c & ofxSVGConstant::ASCII_CLASS_DIGIT) != 0; };
-	static inline bool isAsciiGraph(const char *c) { return (*c & ofxSVGConstant::ASCII_CLASS_GRAPH) != 0; };
-	static inline bool isAsciiLetter(const char *c) { return (*c & ofxSVGConstant::ASCII_CLASS_ALPHA) != 0; };
-	static inline bool isAsciiLower(const char *c) { return (*c & ofxSVGConstant::ASCII_CLASS_LOWER) != 0; };
-	static inline bool isAsciiNumlet(const char *c) { return (*c & ofxSVGConstant::ASCII_CLASS_ALNUM) != 0; };
-	static inline bool isAsciiPrint(const char *c) { return (*c & ofxSVGConstant::ASCII_CLASS_PRINT) != 0; };
-	static inline bool isAsciiPunct(const char *c) { return (*c & ofxSVGConstant::ASCII_CLASS_PUNCT) != 0; };
-	static inline bool isAsciiSpace(const char *c) { return (*c & ofxSVGConstant::ASCII_CLASS_SPACE) != 0; };
-	static inline bool isAsciiUpper(const char *c) { return (*c & ofxSVGConstant::ASCII_CLASS_UPPER) != 0; };
-	static inline bool isAsciiXDigit(const char *c) { return (*c & ofxSVGConstant::ASCII_CLASS_XDIGIT) != 0; };
-	static inline bool isAsciiXLetter(const char *c) { return (*c & ofxSVGConstant::ASCII_CLASS_XALPHA) != 0; };
-		  
-	static inline bool isAsciiBlank(const char c) { return (c & ofxSVGConstant::ASCII_CLASS_BLANK) != 0; };
-	static inline bool isAsciiCntrl(const char c) { return (c & ofxSVGConstant::ASCII_CLASS_PRINT) == 0; };
-	static inline bool isAsciiDigit(const char c) { return (c & ofxSVGConstant::ASCII_CLASS_DIGIT) != 0; };
-	static inline bool isAsciiGraph(const char c) { return (c & ofxSVGConstant::ASCII_CLASS_GRAPH) != 0; };
-	static inline bool isAsciiLetter(const char c) { return (c & ofxSVGConstant::ASCII_CLASS_ALPHA) != 0; };
-	static inline bool isAsciiLower(const char c) { return (c & ofxSVGConstant::ASCII_CLASS_LOWER) != 0; };
-	static inline bool isAsciiNumlet(const char c) { return (c & ofxSVGConstant::ASCII_CLASS_ALNUM) != 0; };
-	static inline bool isAsciiPrint(const char c) { return (c & ofxSVGConstant::ASCII_CLASS_PRINT) != 0; };
-	static inline bool isAsciiPunct(const char c) { return (c & ofxSVGConstant::ASCII_CLASS_PUNCT) != 0; };
-	static inline bool isAsciiSpace(const char c) { return (c & ofxSVGConstant::ASCII_CLASS_SPACE) != 0; };
-	static inline bool isAsciiUpper(const char c) { return (c & ofxSVGConstant::ASCII_CLASS_UPPER) != 0; };
-	static inline bool isAsciiXDigit(const char c) { return (c & ofxSVGConstant::ASCII_CLASS_XDIGIT) != 0; };
-	static inline bool isAsciiXLetter(const char c) { return (c & ofxSVGConstant::ASCII_CLASS_XALPHA) != 0; };
-	  
+	static inline bool isAsciiBlank(const char *c) { return (asciiCTypeData[*c] & ofxSVGConstant::ASCII_CLASS_BLANK) != 0; };
+	static inline bool isAsciiCntrl(const char *c) { return (asciiCTypeData[*c] & ofxSVGConstant::ASCII_CLASS_PRINT) == 0; };
+	static inline bool isAsciiDigit(const char *c) { return (asciiCTypeData[*c] & ofxSVGConstant::ASCII_CLASS_DIGIT) != 0; };
+	static inline bool isAsciiGraph(const char *c) { return (asciiCTypeData[*c] & ofxSVGConstant::ASCII_CLASS_GRAPH) != 0; };
+	static inline bool isAsciiLetter(const char *c) { return (asciiCTypeData[*c] & ofxSVGConstant::ASCII_CLASS_ALPHA) != 0; };
+	static inline bool isAsciiLower(const char *c) { return (asciiCTypeData[*c] & ofxSVGConstant::ASCII_CLASS_LOWER) != 0; };
+	static inline bool isAsciiNumlet(const char *c) { return (asciiCTypeData[*c] & ofxSVGConstant::ASCII_CLASS_ALNUM) != 0; };
+	static inline bool isAsciiPrint(const char *c) { return (asciiCTypeData[*c] & ofxSVGConstant::ASCII_CLASS_PRINT) != 0; };
+	static inline bool isAsciiPunct(const char *c) { return (asciiCTypeData[*c] & ofxSVGConstant::ASCII_CLASS_PUNCT) != 0; };
+	static inline bool isAsciiSpace(const char *c) { return (asciiCTypeData[*c] & ofxSVGConstant::ASCII_CLASS_SPACE) != 0; };
+	static inline bool isAsciiUpper(const char *c) { return (asciiCTypeData[*c] & ofxSVGConstant::ASCII_CLASS_UPPER) != 0; };
+	static inline bool isAsciiXDigit(const char *c) { return (asciiCTypeData[*c] & ofxSVGConstant::ASCII_CLASS_XDIGIT) != 0; };
+	static inline bool isAsciiXLetter(const char *c) { return (asciiCTypeData[*c] & ofxSVGConstant::ASCII_CLASS_XALPHA) != 0; };
+	
+	static inline bool isAsciiBlank(const char c) { return (asciiCTypeData[c] & ofxSVGConstant::ASCII_CLASS_BLANK) != 0; };
+	static inline bool isAsciiCntrl(const char c) { return (asciiCTypeData[c] & ofxSVGConstant::ASCII_CLASS_PRINT) == 0; };
+	static inline bool isAsciiDigit(const char c) { return (asciiCTypeData[c] & ofxSVGConstant::ASCII_CLASS_DIGIT) != 0; };
+	static inline bool isAsciiGraph(const char c) { return (asciiCTypeData[c] & ofxSVGConstant::ASCII_CLASS_GRAPH) != 0; };
+	static inline bool isAsciiLetter(const char c) { return (asciiCTypeData[c] & ofxSVGConstant::ASCII_CLASS_ALPHA) != 0; };
+	static inline bool isAsciiLower(const char c) { return (asciiCTypeData[c] & ofxSVGConstant::ASCII_CLASS_LOWER) != 0; };
+	static inline bool isAsciiNumlet(const char c) { return (asciiCTypeData[c] & ofxSVGConstant::ASCII_CLASS_ALNUM) != 0; };
+	static inline bool isAsciiPrint(const char c) { return (asciiCTypeData[c] & ofxSVGConstant::ASCII_CLASS_PRINT) != 0; };
+	static inline bool isAsciiPunct(const char c) { return (asciiCTypeData[c] & ofxSVGConstant::ASCII_CLASS_PUNCT) != 0; };
+	static inline bool isAsciiSpace(const char c) { return (asciiCTypeData[c] & ofxSVGConstant::ASCII_CLASS_SPACE) != 0; };
+	static inline bool isAsciiUpper(const char c) { return (asciiCTypeData[c] & ofxSVGConstant::ASCII_CLASS_UPPER) != 0; };
+	static inline bool isAsciiXDigit(const char c) { return (asciiCTypeData[c] & ofxSVGConstant::ASCII_CLASS_XDIGIT) != 0; };
+	static inline bool isAsciiXLetter(const char c) { return (asciiCTypeData[c] & ofxSVGConstant::ASCII_CLASS_XALPHA) != 0; };
+
 };
