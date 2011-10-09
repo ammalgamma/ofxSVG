@@ -120,6 +120,8 @@ void ofxSVG::load(string svgPath){
     }
 
     TiXmlBase::SetCondenseWhiteSpace(true);
+	
+	ofSetCircleResolution(200);
 }
 
 
@@ -317,7 +319,7 @@ void ofxSVG::parseCircle(){
     obj->type        = ofxSVGObject_Circle;
     obj->name        = id;
     obj->x           = x;
-    obj->x           = y;
+    obj->y           = y;
     obj->r           = r;
 
 	if(fill!="none"){
@@ -369,7 +371,7 @@ void ofxSVG::parseEllipse(){
 
     obj->name        = id;
     obj->x           = x;
-    obj->y           = x;
+    obj->y           = y;
     obj->rx          = rx;
     obj->ry          = ry;
 
@@ -1135,6 +1137,7 @@ void ofxSVG::parseFill(ofxSVGXml *svgXml, ofxSVGObject *obj, string fill, string
 		float g = (rgb >> 8) & 0xFF;
 		float b = (rgb) & 0xFF;
 		ofColor fillc(r,g,b,obj->opacity);
+		obj->fill = 1;
 		obj->fillColor = fillc;
 	}
 }

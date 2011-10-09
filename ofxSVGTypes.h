@@ -40,6 +40,12 @@ public:
 	
     vector<ofPoint> vertexs;
 	
+	ofxSVGObject() {
+		fill = 0;
+		strokeWeight = 0;
+		stroke = 0;
+	};
+	
 	virtual void render() {}
 };
 
@@ -48,7 +54,12 @@ public:
     float x, y, width, height;
 	
 	void draw() {
-		ofSetLineWidth(strokeWeight);
+		if(strokeWeight != 0)
+			ofSetLineWidth(strokeWeight);
+		else 
+			ofSetLineWidth(1);
+
+			
 		if(fill) {
 			ofFill();
 			ofSetColor(fillColor);
@@ -67,7 +78,11 @@ public:
     float x, y, rx, ry;
 	
 	void draw() {
-		ofSetLineWidth(strokeWeight);
+		if(strokeWeight != 0)
+			ofSetLineWidth(strokeWeight);
+		else 
+			ofSetLineWidth(1);
+		
 		if(fill) {
 			ofFill();
 			ofSetColor(fillColor);
@@ -75,7 +90,8 @@ public:
 			ofNoFill();
 		}
 		ofSetColor(strokeColor);
-		ofRect(x, y, rx, ry);
+		ofEllipse(x, y, rx, ry);
+		
 	}
 	
 	void render() {}
@@ -86,7 +102,13 @@ public:
     float x, y, r;
 	
 	void draw() {
-		ofSetLineWidth(strokeWeight);
+		
+		if(strokeWeight != 0)
+			ofSetLineWidth(strokeWeight);
+		else 
+			ofSetLineWidth(1);
+		
+		
 		if(fill) {
 			ofFill();
 			ofSetColor(fillColor);
@@ -106,7 +128,11 @@ public:
     float x1, y1, x2, y2;
 	
 	void draw() {
-		ofSetLineWidth(strokeWeight);
+		if(strokeWeight != 0)
+			ofSetLineWidth(strokeWeight);
+		else 
+			ofSetLineWidth(1);
+		
 		ofSetColor(strokeColor);
 		ofLine(x1, y1, x2, y2);
 	}
@@ -162,11 +188,15 @@ public:
 };
 class ofxSVGPath : public ofxSVGObject {
 public:
-	//vector<ofxSVGPoint> vectorData;
+
 	ofPath path;
 	
 	void draw() {
-		ofSetLineWidth(strokeWeight);
+		if(strokeWeight != 0)
+			ofSetLineWidth(strokeWeight);
+		else 
+			ofSetLineWidth(1);
+		
 		if(fill) {
 			ofFill();
 			ofSetColor(fillColor);
@@ -191,7 +221,11 @@ class ofxComplexSVGPath : public ofxSVGObject {
 	ofPath path;
 	
 	void draw() {
-		ofSetLineWidth(strokeWeight);
+		if(strokeWeight != 0)
+			ofSetLineWidth(strokeWeight);
+		else 
+			ofSetLineWidth(1);
+		
 		if(fill) {
 			ofFill();
 			ofSetColor(fillColor);
