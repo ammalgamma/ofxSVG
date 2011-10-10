@@ -18,9 +18,24 @@ enum {
 
 enum SVGDrawingMode { DRAW_VERTEX_ARRAY, DRAW_FBO, DRAW_TEXTURE, DRAW_VBO };
 
-// GENERIC OBJECT
-//-------------------------------------------------
 
+class transformInfo{
+	
+public:
+	
+	transformInfo():scale(1, 1, 1) {
+	};
+	
+	ofVec3f trans, scale;
+	ofVec3f rotate;
+	ofVec2f skew;
+	
+	
+};
+
+
+
+// GENERIC OBJECT
 class ofxSVGObject {
 public:
     
@@ -46,6 +61,10 @@ public:
 		stroke = 0;
 	};
 	
+	transformInfo transformation;
+	
+	int hasTransform;
+	
 	virtual void render() {}
 };
 
@@ -59,7 +78,13 @@ public:
 		else 
 			ofSetLineWidth(1);
 
-			
+		
+		ofPushMatrix();
+
+		ofScale(transformation.scale.x,transformation.scale.y,transformation.scale.z);
+		ofTranslate(transformation.trans);
+		ofRotate(transformation.rotate[0], 0, 0, 1);
+		
 		if(fill) {
 			ofFill();
 			ofSetColor(fillColor);
@@ -68,6 +93,8 @@ public:
 		}
 		ofSetColor(strokeColor);
 		ofRect(x, y, width, height);
+		
+		ofPopMatrix();
 	}
 	
 	void render() {}
@@ -317,18 +344,14 @@ public:
 				
 				ofPushMatrix();
 				
-				// I think I want ofMultMatrix
 				
-				ofVec3f trans, scale;
-				ofQuaternion rot, so;
+				ofScale(transformation.scale.x,transformation.scale.y,transformation.scale.z);
+				ofTranslate(transformation.trans);
+				ofRotate(transformation.rotate[0], 0, 0, 1);
 				
-				mat.decompose(trans, rot, scale, so); // svg doesn't really support so
-				ofTranslate(trans);
-				ofRotate(rot.w(), rot.x(), rot.y(), rot.z());
-				ofScale(scale.x, scale.y, scale.z);
 				
 				for(int i=0; i<objects.size(); i++){
-					objects[i]->render();
+					objects[i]->draw();
 				}
 				
 				ofPopMatrix();
@@ -353,15 +376,11 @@ public:
 			case DRAW_VERTEX_ARRAY:
 				ofPushMatrix();
 				
-				// I think I want ofMultMatrix
 				
-				ofVec3f trans, scale;
-				ofQuaternion rot, so;
+				ofScale(transformation.scale.x,transformation.scale.y,transformation.scale.z );
+				ofTranslate(transformation.trans);
+				ofRotate(transformation.rotate.x, 0, 0, 1);
 				
-				mat.decompose(trans, rot, scale, so); // svg doesn't really support so
-				ofTranslate(trans);
-				ofRotate(rot.w()*RAD_TO_DEG, rot.x(), rot.y(), 0);
-				ofScale(scale.x, scale.y, scale.z);
 				
 				for(int i=0; i<objects.size(); i++){
 					objects[i]->draw();
@@ -379,7 +398,11 @@ public:
 	ofVbo *layerVBO;
 	ofFbo *layerFBO;
 	ofTexture *layerTex;
-	ofMatrix4x4 mat;
+	
+	transformInfo transformation;
+	
+	int hasTransform;
+
 };
 
 

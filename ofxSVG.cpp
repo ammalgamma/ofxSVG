@@ -92,7 +92,8 @@ void ofxSVG::load(string svgPath){
 		cout << transform << endl;
 		if(transform != "") {
 			ofxSVGUtils utils;
-			utils.parseTransform(layer.mat, transform);
+			utils.parseTransform(layer.transformation, transform);
+			layer.hasTransform = 1;
 		}
 		
 		layers.push_back( layer );
@@ -113,7 +114,8 @@ void ofxSVG::load(string svgPath){
 			string transform = svgXml.getAttribute("g", "transform", "", i);
 			if(transform != "") {
 				ofxSVGUtils utils;
-				utils.parseTransform(layer.mat, transform);
+				utils.parseTransform(layer.transformation, transform);
+				layer.hasTransform = 1;
 			}
 			
 			layers.push_back( layer );
@@ -278,6 +280,12 @@ void ofxSVG::parseRect(){
     if(!(fill=="none" && stroke== "")){
 
         ofxSVGRectangle* obj = new ofxSVGRectangle;
+		
+		if(transform != "") {
+			ofxSVGUtils utils;
+			utils.parseTransform(obj->transformation, transform);
+			obj->hasTransform = 1;
+		}
 
         // Shape info
         //--------------------------------
@@ -794,23 +802,6 @@ void ofxSVG::parsePath() {
 	obj->render();
 	
 	layers[layers.size()-1].objects.push_back(obj);
-	
-}
-
-void ofxSVG::drawVectorDataExperimental(ofPath* object) {
-	
-	/*for(int k = 0; k < object->paths.size(); k++){
-		vector<ofVec2f> *vec = object->paths.at(k);
-		printf(" size %i ", vec->size());
-		if(vec->size() < 1000) {
-		ofBeginShape();
-			for(int l = 0; l < vec->size(); l++) {
-					ofVec2f pt = vec->at(l);
-					ofVertex(pt.x, pt.y);
-			}
-		ofEndShape(false);
-		}
-	}*/
 	
 }
 

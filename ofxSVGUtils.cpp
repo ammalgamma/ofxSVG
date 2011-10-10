@@ -9,7 +9,7 @@
 
 #include "ofxSVGUtils.h"
 
-int ofxSVGUtils::parseTransform(ofMatrix4x4& _dst, const string& _str)
+int ofxSVGUtils::parseTransform(transformInfo &transformation, const string& _str)
 {
 	str = _str;
 	strCur = str.begin();
@@ -21,14 +21,14 @@ int ofxSVGUtils::parseTransform(ofMatrix4x4& _dst, const string& _str)
 	while( strCur < str.end() )
 	{
 		
-		getFunction(_dst);
+		getFunction(transformation);
 	}
 	
 	
 	return endTransformParse(err);
 }
 
-void ofxSVGUtils::getFunction(ofMatrix4x4& dst)
+void ofxSVGUtils::getFunction(transformInfo &transformation)
 {
 	
 	using namespace Poco;
@@ -70,13 +70,13 @@ void ofxSVGUtils::getFunction(ofMatrix4x4& dst)
 		
 		strCur += end;
 		
-		findArguments(dst);
+		findArguments(transformation);
 		
 		if (d_count == 6) return;
 	}
 }
 
-void ofxSVGUtils::findArguments(ofMatrix4x4& dst)
+void ofxSVGUtils::findArguments(transformInfo &transformation)
 {
 	// Skip ',' and move to position of the next digit.
 	bool commaParsed = false;
@@ -103,7 +103,7 @@ void ofxSVGUtils::findArguments(ofMatrix4x4& dst)
 			if (commaParsed) 
 				return;
 			
-			parseFunction(dst, NO_ERR);
+			parseFunction(transformation, NO_ERR);
 			return;
 		}
 		else if (Poco::Ascii::isDigit(*strCur) || *strCur == '-' || *strCur == '+')
@@ -113,12 +113,11 @@ void ofxSVGUtils::findArguments(ofMatrix4x4& dst)
 		else
 		{
 			return;
-			//endTransformParse(err);
 		}
 	}
 }
 
-void ofxSVGUtils::parseFunction(ofMatrix4x4& dst, errs err)
+void ofxSVGUtils::parseFunction(transformInfo &transformation, errs err)
 {
 	
 	// matrix() function.
@@ -128,11 +127,11 @@ void ofxSVGUtils::parseFunction(ofMatrix4x4& dst, errs err)
 		cout << " matrix " << endl;
 		
 		if (d_count != 6) return;
-		
-		//d[0], d[1], d[2], d[3], d[4], d[5];
-		ofMatrix3x3 mat;
-		matrixFromNum(d[0], d[1], d[2], d[3], d[4], d[5], mat);
-		multSVGMatTo4x4(mat, dst);
+
+		// this might be wrong
+		transformation.rotate = atan2(d[3],d[0]);
+		transformation.trans = ofVec2f(d[4], d[5]);
+		transformation.scale = ofVec2f(d[1], d[3]);
 		
 	}
 	// translate() function.
@@ -143,7 +142,7 @@ void ofxSVGUtils::parseFunction(ofMatrix4x4& dst, errs err)
 		if (d_count != 1 && d_count != 2) return;
 		// If ty is not provided, it's assumed to be zero.
 		if (d_count == 1) d[1] = 0.0f;
-		dst.translate(ofVec2f(d[0], d[1]));
+		transformation.trans += ofVec2f(d[0], d[1]);
 	}
 	// scale() function.
 	else if (functionLen == 5 && stringEquals(functionName, "scale", 5))
@@ -153,7 +152,7 @@ void ofxSVGUtils::parseFunction(ofMatrix4x4& dst, errs err)
 		if (d_count != 1 && d_count != 2) return;
 		// If sy is not provided, it's assumed to be equal to sx.
 		if (d_count == 1) d[1] = d[0];
-		dst.scale(ofVec2f(d[0], d[1]));
+		transformation.scale += ofVec2f(d[0], d[1]);
 	}
 	// rotate() function.
 	else if (functionLen == 6 && stringEquals(functionName, "rotate", 6))
@@ -162,25 +161,27 @@ void ofxSVGUtils::parseFunction(ofMatrix4x4& dst, errs err)
 		
 		if ( !(d_count == 1 || d_count == 3)) return;
 		 
-		if (d_count == 3) dst.translate(ofVec2f(d[1], d[2]));
+		if (d_count == 3) {
+			transformation.rotate.y += d[1];
+			transformation.rotate.z += d[2];
+		}
 		
-		dst.rotate(d[0], 1.0, 1.0, 1.0);
+		transformation.rotate.x += d[0];
 		
-		if (d_count == 3) dst.translate(ofVec2f(-d[1], -d[2]));
 	}
 	// skewX() function.
 	else if (functionLen == 5 && stringEquals(functionName, "skewX", 5))
 	{
 		cout << " skewX " << endl;
 		if (d_count != 1) return;
-		skew(dst, ofDegToRad(d[0]), 0.0f);
+		transformation.skew[0] = d[0];
 	}
 	// skewY() function.
 	else if (functionLen == 5 && stringEquals(functionName, "skewY", 5))
 	{
 		cout << " skewY " << endl;
 		if (d_count != 1) return;
-		skew(dst, 0.0f, ofDegToRad(d[0]));
+		transformation.skew[1] = d[0];
 	}
 	else
 	{
@@ -191,12 +192,10 @@ void ofxSVGUtils::parseFunction(ofMatrix4x4& dst, errs err)
 	for (;;)
 	{
 		if (strCur == str.end()) break;
-		
-		//if (Poco::Ascii::isSpace( *strCur))
+
 		if(Poco::Ascii::isSpace( *strCur ))
 			++strCur;
 		else
-			//startTransformParse(dst);
 			return;
 	}
 }

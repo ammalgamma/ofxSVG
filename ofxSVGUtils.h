@@ -2,15 +2,13 @@
  *  ofxSVGUtils.h
  *  
  *
- *  Created by base on 26/09/11.
- *  Copyright 2011 __MyCompanyName__. All rights reserved.
- *
  */
 
 #pragma mark once
 
 #include "ofMain.h"
 #include "ofxSVGConstants.h"
+#include "ofxSVGTypes.h"
 #include <Poco/Ascii.h>
 
 enum errs {
@@ -21,7 +19,7 @@ enum errs {
 class ofxSVGUtils {
 public:
 	//err_t parseTransform(TransformF& dst, const StringW& str)
-	int parseTransform(ofMatrix4x4& _dst, const string& _str);
+	int parseTransform(transformInfo &transformation, const string& _str);
 	
 	void skew( ofMatrix4x4& mat, float x, float y) {
 		
@@ -56,10 +54,10 @@ public:
 	void matrixFromNum(float a, float b, float c, float d, float e, float f, ofMatrix3x3 &mat) {
 		mat[0] = a;
 		mat[3] = b;
-		mat[1] = a;
-		mat[4] = b;
-		mat[2] = a;
-		mat[5] = b;
+		mat[1] = c;
+		mat[4] = d;
+		mat[2] = e;
+		mat[5] = f;
 		mat[8] = 1.f;
 	}
 	
@@ -70,6 +68,15 @@ public:
 		four(1, 0) *= three[3];
 		four(1, 1) *= three[4];
 		four(1, 2) *= three[5];
+	}
+	
+	void setSVGMatTo4x4(ofMatrix3x3 &three, ofMatrix4x4 &four) {
+		four(0, 0) = three[0];
+		four(0, 1) = three[1];
+		four(0, 2) = three[2];
+		four(1, 0) = three[3];
+		four(1, 1) = three[4];
+		four(1, 2) = three[5];
 	}
 	
 private:
@@ -85,14 +92,13 @@ private:
 	 size_t d_count;
 	 string str;
 
-	 void getFunction(ofMatrix4x4& dst);
-	 void parseFunction(ofMatrix4x4& dst, errs err);
-	 void findArguments(ofMatrix4x4& dst);
+	 void getFunction(transformInfo &transformation);
+	 void parseFunction(transformInfo &transformation, errs err);
+	 void findArguments(transformInfo &transformation);
 	 int endTransformParse(errs err) {
 		return err;
 	};
 
-	//float* dst,  const char* str, size_t length, char decimalPoint = '.', size_t* pEnd = NULL, uint32_t* pFlags = NULL)
 	 void stringToDouble( float* dst, string::iterator &strit, size_t length, char decimalPoint, size_t* pEnd);
 	 bool stringEquals(string::iterator a, const string& b, size_t length)
 	{
