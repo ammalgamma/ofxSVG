@@ -192,6 +192,72 @@ public:
 
 class ofxSVGPolygon : public ofxSVGObject {
 public:
+	
+	ofPolyline path;
+	
+	void draw() {
+		
+		if(vertexs.size() > path.size())  {
+			
+			path.clear();
+			
+			vector<ofPoint>::iterator vit = vertexs.begin();
+			while(vit != vertexs.end()) {
+				path.addVertex(*vit);
+				++vit;
+			}
+			vit = vertexs.begin();
+			path.addVertex(*vit);
+			path.close();
+		}
+		
+		
+		if(strokeWeight != 0)
+			ofSetLineWidth(strokeWeight);
+		else 
+			ofSetLineWidth(1);
+		
+		if(fill) {
+			ofFill();
+			ofSetColor(fillColor);
+			path.draw();
+			
+		}
+		
+		ofNoFill();
+		
+		ofSetColor(strokeColor);
+		path.draw();
+	}
+	
+	void render() {
+		
+		if(vertexs.size() > path.size())  {
+			
+			path.clear();
+			
+			vector<ofPoint>::iterator vit = vertexs.begin();
+			while(vit != vertexs.end()) {
+				path.addVertex(*vit);
+				++vit;
+			}
+			
+			path.close();
+		}
+		
+		if(fill) {
+			ofFill();
+			ofSetColor(fillColor);
+			path.draw();
+			
+		}
+		
+		ofNoFill();
+		
+		ofSetColor(strokeColor);
+		path.draw();
+	}
+	
 };
 
 class ofxSVGPoint {
@@ -213,6 +279,7 @@ public:
 	int type;
 	ofPoint p, c1, c2;
 };
+
 class ofxSVGPath : public ofxSVGObject {
 public:
 

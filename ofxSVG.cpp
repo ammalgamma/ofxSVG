@@ -487,7 +487,7 @@ void ofxSVG::parsePolygon(){
 
     // Vertexs
     //--------------------------------
-    for(int i=0; i<pointsStrings.size()-1; i++){
+    for(int i=0; i<pointsStrings.size(); i++){
         vector<string> pointString = ofSplitString(pointsStrings[i], ",");
         obj->vertexs.push_back(ofVec2f(strtod(pointString[0].c_str(), NULL), strtod(pointString[1].c_str(), NULL)));
     }
